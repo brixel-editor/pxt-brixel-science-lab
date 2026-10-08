@@ -10,7 +10,7 @@ MakeCode micro:bit 프로젝트에 이 확장을 추가하고, 사용할 파일 
 | gesture-usb.ts | APDS9960, 근접·R/G/B·손짓 번호 다섯 열 |
 | pulse-usb.ts | MAX30102, 50ms 간격 빨간빛·적외선 두 열 |
 | gps-usb.ts | D_031 GPS, 9600 baud, 위도·경도 두 열. 위치 미확인 시 전송 없음 |
-| fingerprint-usb.ts | AS608, A=첫 읽기, 손가락 떼고 B=번호 1에 저장(기존 지문 덮어씀), 로고=인식 번호 한 열 |
+| fingerprint-usb.ts | AS608, A=번호 1로 1차 등록, 손가락 떼고 다시 대기, B=같은 번호로 2차 등록·저장(기존 지문 덮어씀), 실행 후 상태 코드로 결과 확인, 로고=인식 번호 한 열 |
 | analog-dust-usb.ts | A_016/017/018, 분압된 VO=P1·전압 호환 LED 구동=P8, 원시값 한 열 |
 | voltage-usb.ts | A_034 전압 센서 출력→P1, 보정 없이 아날로그 원시값 0~1023 한 열 |
 | turbidity-usb.ts | A_013/A_014 탁도 센서 출력→P1, 보정 없이 아날로그 원시값 0~1023 한 열 |

@@ -61,7 +61,8 @@ input.onButtonPressed(Button.AB, function () {
  scienceMotion.startGPS(ScienceDigitalPin.P13, ScienceDigitalPin.P14, ScienceSensorBaud.Baud9600)
  if (scienceMotion.gpsReady()) scienceData.sendUSB([scienceMotion.gps(ScienceGPSValue.Latitude), scienceMotion.gps(ScienceGPSValue.Longitude)])
  scienceBio.startFingerprint(ScienceDigitalPin.P13, ScienceDigitalPin.P14, ScienceSensorBaud.Baud57600)
- if (scienceBio.enrollFingerprint(ScienceFingerprintStep.First, 1)) {
+ scienceBio.enrollFingerprint(ScienceFingerprintStep.First, 1)
+ if (scienceBio.fingerprintStatus() == 0) {
   scienceBio.enrollFingerprint(ScienceFingerprintStep.Second, 1)
  }
  scienceData.sendUSB([scienceBio.fingerprintID(), scienceBio.fingerprintStatus(), scienceAir.analogDust(ScienceAnalogPin.P1, ScienceDigitalPin.P8)])

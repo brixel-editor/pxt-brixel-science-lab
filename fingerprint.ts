@@ -1,7 +1,7 @@
 enum ScienceFingerprintStep {
-    //% block="first reading"
+    //% block="1st enrollment"
     First = 0,
-    //% block="second reading and save"
+    //% block="2nd enrollment"
     Second = 1
 }
 namespace scienceBio {
@@ -77,25 +77,22 @@ namespace scienceBio {
         }
         fingerBusy = false
     }
-    /** First: read a finger. Lift it, then use Second with the same finger and ID within 60 seconds. Second saves inside AS608 and replaces an existing template at that ID. True=success. IDs start at 1 and must be below capacity. */
-    //% blockId=science_fingerprint_enroll block="fingerprint $step ID $id" group="Fingerprint(AS608)"
+    /** Run 1st enrollment, lift the finger, then run 2nd enrollment with the same finger and ID within 60 seconds. 2nd enrollment saves inside AS608 and replaces an existing template at that ID. Check fingerprint status afterward: 0=success. IDs start at 1 and must be below capacity. */
+    //% blockId=science_fingerprint_enroll block="fingerprint ID $id $step" group="Fingerprint(AS608)"
     //% id.defl=1 id.min=1 id.max=999
-    export function enrollFingerprint(step: ScienceFingerprintStep, id: number): boolean {
+    export function enrollFingerprint(step: ScienceFingerprintStep, id: number): void {
         fingerLock()
-        let result = false
         if (!fingerSelected() || id < 1 || id >= fingerCapacity || id != Math.floor(id) || (step != 0 && step != 1)) {
             fingerFirstID = -1; fingerStatusValue = -1
         } else if (step == ScienceFingerprintStep.First) {
             fingerFirstID = -1
-            result = fingerCapture(1)
-            if (result) { fingerFirstID = id; fingerFirstAt = control.millis() }
+            if (fingerCapture(1)) { fingerFirstID = id; fingerFirstAt = control.millis() }
         } else if (fingerFirstID == id && control.millis() - fingerFirstAt <= 60000) {
             // Consume the first stage even when capture fails, so old character buffers cannot be reused.
             fingerFirstID = -1
-            result = fingerCapture(2) && fingerOK([5]) && fingerOK([6, 1, (id >> 8) & 255, id & 255])
+            if (fingerCapture(2) && fingerOK([5])) fingerOK([6, 1, (id >> 8) & 255, id & 255])
         } else { fingerFirstID = -1; fingerStatusValue = -1 }
         fingerBusy = false
-        return result
     }
     /** Capture and find a registered fingerprint. Returns its ID; no finger, no match, communication error or unselected sensor=-1. Inspect status for the reason. */
     //% blockId=science_fingerprint_find block="fingerprint matched ID" group="Fingerprint(AS608)"
