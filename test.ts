@@ -52,10 +52,9 @@ input.onButtonPressed(Button.B, function () {
 
 input.onLogoEvent(TouchButtonEvent.Pressed, function () {
  scienceAir.startCO2(ScienceDigitalPin.P13, ScienceDigitalPin.P14)
- scienceElectric.setADCAddress(ScienceADCAddress.Address48)
- scienceElectric.calibrateVoltage(ScienceADCChannel.A0, 5)
- scienceWater.calibrateTurbidity(ScienceADCChannel.A1)
- scienceData.sendUSB([scienceAir.co2(),scienceDetection.laserDistance(),scienceDetection.gestureProximity(),scienceDetection.gestureColor(ScienceColorChannel.Red),scienceDetection.gestureDirection(),scienceElectric.voltage(ScienceADCChannel.A0),scienceWater.turbidity(ScienceADCChannel.A1)])
+ scienceElectric.calibrateVoltage(ScienceAnalogPin.P1, 5)
+ scienceWater.calibrateTurbidity(ScienceAnalogPin.P2)
+ scienceData.sendUSB([scienceAir.co2(),scienceDetection.laserDistance(),scienceDetection.gestureProximity(),scienceDetection.gestureColor(ScienceColorChannel.Red),scienceDetection.gestureDirection(),scienceElectric.voltage(ScienceAnalogPin.P1),scienceWater.turbidity(ScienceAnalogPin.P2),scienceElectric.voltageRaw(ScienceAnalogPin.P1),scienceWater.turbidityRaw(ScienceAnalogPin.P2)])
 })
 
 input.onButtonPressed(Button.AB, function () {

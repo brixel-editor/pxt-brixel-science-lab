@@ -41,7 +41,7 @@ Workbook evidence and contradictions are recorded in `_research/06_inventory_rec
 | native.cpp, uart.ts | CODAL NRF52Serial / Serial APIs; UARTE1 for sensors, UARTE0 stays assigned to USB; one selected UART sensor |
 | particulate.ts | Plantower PMS3003/7003 manufacturer frames, length 20/28, atmospheric concentration, checksum; reserved bytes left uninterpreted |
 | co2.ts | Existing BRIXEL MH-Z19 code + Winsen 0x86 read-frame reference; bounded response parser, 60s MH-Z19D warmup; no calibration commands |
-| external-adc.ts | TI ADS1115 single-shot register protocol; separate channel calibration; AZDM01 relative transmission against actual clear-water output |
+| external-adc.ts (retired in 0.5.0) | Historical ADS1115 path; removed after the user confirmed this module is not available. Current analog pin implementation is described below |
 | encoder.ts, clock.ts | Original quadrature state machine and DS1307 BCD read/validation; no external code copied |
 
 Pinned vendor/runtime snapshots (all hashes verified by tools/check.js):
@@ -62,7 +62,7 @@ Additional primary references:
 - [Analog Devices MAX30102](https://www.analog.com/media/en/technical-documentation/data-sheets/max30102.pdf): 18-bit red/IR FIFO, 100SPS / 411µs settings, overflow/status bits.
 - [Analog Devices MAX30105](https://www.analog.com/media/en/technical-documentation/data-sheets/MAX30105.pdf): reviewed earlier for the shared red/IR mode. On 2026-10-08 the user corrected the owned I2C_013 module to MAX30102; current labels, examples and physical verification target MAX30102. The upstream SparkFun file name remains MAX30105.cpp.
 - [AMS CCS811 datasheet, manufacturer-authored copy](https://cdn.sparkfun.com/assets/learn_tutorials/1/4/3/CCS811_Datasheet-DS000459.pdf): 20-minute conditioning; first-use burn-in is separate and firmware-dependent.
-- [TI ADS1115](https://www.ti.com/lit/ds/symlink/ads1115.pdf): ±6.144V PGA does not permit exceeding the ADC supply; 5V signal path needs appropriate ADC supply and I2C level shifting.
+- [TI ADS1115](https://www.ti.com/lit/ds/symlink/ads1115.pdf): historical reference for the driver removed in 0.5.0. No ADS1115 is required or used by the current extension.
 - [Aosong AZDM01 V1.1, manufacturer-authored copy](https://xonstorage.blob.core.windows.net/pdf/aosong_azdm01_apr22_xonlink.pdf): turbidity factor is the ratio of measured to clear-water voltage. Module current/PWM drive is not established, so no NTU conversion is claimed.
 - [Analog Devices DS1307](https://www.analog.com/media/en/technical-documentation/data-sheets/DS1307.pdf): BCD registers, CH flag, 12/24h interpretation.
 
@@ -76,3 +76,9 @@ Adaptation licenses are distributed in THIRD_PARTY_NOTICES.md. Snapshot files ar
 - ADC suspension/restoration was checked against [CODAL NRF52ADC](https://github.com/lancaster-university/codal-nrf52/blob/1fbb7240290fe36a55c61378f5cdeb7640f3ec4a/source/NRF52ADC.cpp) and [NRF52Pin](https://github.com/lancaster-university/codal-nrf52/blob/1fbb7240290fe36a55c61378f5cdeb7640f3ec4a/source/NRF52Pin.cpp). Active ADC stream consumers are rejected. BLE interrupts remain enabled; delayed LED/sample windows return failure. Oscilloscope and coexistence testing remain outstanding.
 
 UART now supports 9600/19200/38400/57600/115200 baud for GPS/fingerprint. PMS/CO2 retain 9600. Only one UART sensor is active at a time; USB remains on its original UART. Inventory assets, protocol research downloads and local test tools are excluded from public distribution.
+
+## 0.5.0 analog voltage and turbidity (2026-10-08)
+
+The user confirmed that no external ADS1115 module is available. `analog-measurements.ts` is an original analog-pin implementation replacing that driver. It uses [MakeCode analogReadPin](https://makecode.microbit.org/reference/pins/analog-read-pin) via the extension's existing shared pin helper. Available analog pins and V2 pin sharing were checked against the [micro:bit edge connector documentation](https://tech.microbit.org/hardware/edgeconnector/).
+
+Dedicated raw-value blocks return 0..1023 without calibration. Optional voltage calibration stores reference volts per ADC count; turbidity calibration stores the clear-water ADC count for relative transmission, following the AZDM01 ratio convention above. Neither assumes an undocumented module divider ratio. Calibration is isolated by physical pin, rejects saturated/near-zero references and expires on program restart. New block IDs prevent retired ADS1115 channel inputs from silently becoming physical pins. Real output-voltage limits, divider ratio, baseline and accuracy remain hardware verification items.

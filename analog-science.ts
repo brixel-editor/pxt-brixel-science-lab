@@ -83,7 +83,7 @@ namespace scienceWater {
     }
 }
 //% color=#A77925 weight=65 block="Electrical measurements"
-//% groups='["Current(WCS2801)","External ADC(ADS1115)"]'
+//% groups='["Current(WCS2801)","Voltage"]'
 namespace scienceElectric {
     let currentPins: number[] = []
     let currentZeros: number[] = []
