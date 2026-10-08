@@ -110,12 +110,25 @@ namespace scienceDisplay {
         if (displayOK) scienceOLEDDriver.oledClear()
         scienceBus.release()
     }
-    /** dis-013/014 WS2812 RGB: use the pin printed at the selected shield socket. Brightness capped at 32/255. V2 hardware DMA; BLE coexistence still needs physical testing. */
-    //% blockId=science_pixels block="NeoPixel pin $pin count $count color $color" group="NeoPixel(WS2812)"
+    /** dis-013/014 WS2812 RGB: pick the color and brightness 0..255. Many LEDs at high brightness need more current than the shield 5V may supply; start low. V2 hardware DMA; BLE coexistence still needs physical testing. */
+    //% blockId=science_pixels_rgb block="NeoPixel pin $pin count $count color $color brightness $brightness" group="NeoPixel(WS2812)"
     //% pin.defl=ScienceDigitalPin.P9 count.min=1 count.max=64 count.defl=8
+    //% color.shadow="colorNumberPicker" color.defl=0xff0000
+    //% brightness.min=0 brightness.max=255 brightness.defl=32
+    export function pixelsColor(pin: ScienceDigitalPin, count: number, color: number, brightness: number): void {
+        showColor(pin, count, color, brightness)
+    }
+    /** Older fixed-color block kept so saved projects still open; brightness 32/255. */
+    //% blockId=science_pixels block="NeoPixel pin $pin count $count color $color" group="NeoPixel(WS2812)"
+    //% pin.defl=ScienceDigitalPin.P9 count.min=1 count.max=64 count.defl=8 deprecated=true
     export function pixels(pin: ScienceDigitalPin, count: number, color: SciencePixelColor): void {
+        showColor(pin, count, color, 32)
+    }
+    function showColor(pin: ScienceDigitalPin, count: number, color: number, brightness: number): void {
         displayOK = false
         if (!scienceInternal.validDigital(pin) || !scienceInternal.finite(count) || count < 1 || count > 64) return
+        if (!scienceInternal.finite(color) || !scienceInternal.finite(brightness)) return
+        brightness = Math.max(0, Math.min(255, Math.round(brightness)))
         while (pixelBusy) basic.pause(1)
         pixelBusy = true
         scienceInternal.prepare(pin)
@@ -125,9 +138,9 @@ namespace scienceDisplay {
         let green = (color >> 8) & 255
         let blue = color & 255
         for (let i = 0; i < count; i++) {
-            data[i * 3] = Math.idiv(green * 32, 255)
-            data[i * 3 + 1] = Math.idiv(red * 32, 255)
-            data[i * 3 + 2] = Math.idiv(blue * 32, 255)
+            data[i * 3] = Math.idiv(green * brightness, 255)
+            data[i * 3 + 1] = Math.idiv(red * brightness, 255)
+            data[i * 3 + 2] = Math.idiv(blue * brightness, 255)
         }
         displayOK = scienceNative.showPixels(pin, data)
         // CODAL WS2812B::play blocks until its DMA stream consumes the frame. Yield between frames.

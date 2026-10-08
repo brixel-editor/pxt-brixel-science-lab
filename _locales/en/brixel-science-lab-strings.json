@@ -209,6 +209,8 @@
   "scienceDisplay.oledClear|block": "clear OLED",
   "scienceDisplay.oledClear": "Erase all eight OLED lines.",
   "{id:group}NeoPixel(WS2812)": "NeoPixel(WS2812)",
+  "scienceDisplay.pixelsColor|block": "NeoPixel pin $pin count $count color $color brightness $brightness",
+  "scienceDisplay.pixelsColor": "dis-013/014 WS2812 RGB: pick the color and brightness 0..255. Many LEDs at high brightness need more current than the shield 5V may supply; start low. V2 hardware DMA; BLE coexistence still needs physical testing.",
   "scienceDisplay.pixels|block": "NeoPixel pin $pin count $count color $color",
   "scienceDisplay.pixels": "dis-013/014 WS2812 RGB: use the pin printed at the selected shield socket. Brightness capped at 32/255. V2 hardware DMA; BLE coexistence still needs physical testing.",
   "ScienceAirValue.ECO2|block": "equivalent CO2 (ppm)",
