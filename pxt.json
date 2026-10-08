@@ -1,11 +1,10 @@
 {
   "name": "brixel-science-lab",
-  "version": "0.6.7",
-  "description": "micro:bit V2 science sensor blocks and Bowerbird USB/BLE data collection",
+  "version": "0.7.0",
+  "description": "micro:bit V2 science sensor blocks and Bowerbird USB data collection (Bluetooth: brixel-science-lab-ble)",
   "license": "MIT",
   "dependencies": {
-    "core": "*",
-    "bluetooth": "*"
+    "core": "*"
   },
   "files": [
     "core.ts",
@@ -56,21 +55,7 @@
   "yotta": {
     "configIsJustDefaults": true,
     "config": {
-      "HARDWARE_NEOPIXEL": 1,
-      "microbit-dal": {
-        "bluetooth": {
-          "enabled": 1,
-          "pairing_mode": 0,
-          "private_addressing": 0,
-          "open": 1,
-          "whitelist": 0,
-          "advertising_timeout": 0,
-          "tx_power": 6,
-          "dfu_service": 0,
-          "event_service": 1,
-          "device_info_service": 1
-        }
-      }
+      "HARDWARE_NEOPIXEL": 1
     }
   }
 }

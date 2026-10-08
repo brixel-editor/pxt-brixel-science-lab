@@ -1,24 +1,10 @@
 //% color=#247BA0 weight=90 block="Bowerbird data"
-//% groups='["Send","Bluetooth"]'
+//% groups='["Send"]'
+// Wired (USB) only. Bluetooth sending is the companion extension brixel-science-lab-ble,
+// so classes that only use USB never start the BLE stack (its interrupts disturb timing-critical sensors).
 namespace scienceData {
-    let bleStarted = false
-    let bleConnected = false
     let usbStarted = false
     let sending = false
-
-    /** Start micro:bit Nordic UART. Select micro:bit in Bowerbird Web BLE; wait for connection before sending. */
-    //% blockId=science_ble_start block="start Bluetooth connection" group="Bluetooth"
-    export function startBluetooth(): void {
-        if (bleStarted) return
-        bleStarted = true
-        bluetooth.onBluetoothConnected(function () { bleConnected = true })
-        bluetooth.onBluetoothDisconnected(function () { bleConnected = false })
-        bluetooth.startUartService()
-    }
-
-    /** True once the web app has connected to the board. */
-    //% blockId=science_ble_connected block="Bluetooth connected" group="Bluetooth"
-    export function bluetoothConnected(): boolean { return bleConnected }
 
     /** Empty rows and NaN/Infinity are rejected; no fabricated measurements are sent. */
     export function encode(values: number[]): string {
@@ -50,23 +36,6 @@ namespace scienceData {
             usbStarted = true
         }
         serial.writeString(line + "\n")
-        sending = false
-        return true
-    }
-
-    /** Start Bluetooth once at program start. A disconnected sample is dropped. No headers or units are sent. */
-    //% blockId=science_send_ble block="send values $values to Bowerbird by Bluetooth" group="Send"
-    export function sendBluetooth(values: number[]): void { trySendBluetooth(values) }
-
-    /** Start Bluetooth at program start and connect Bowerbird in micro:bit mode. Put a single sensor reading in this block. */
-    //% blockId=science_send_one_ble block="send measurement $value to Bowerbird by Bluetooth" group="Send"
-    export function sendValueBluetooth(value: number): void { trySendBluetooth([value]) }
-
-    export function trySendBluetooth(values: number[]): boolean {
-        let line = encode(values)
-        if (line.length == 0 || !bleConnected || sending) return false
-        sending = true
-        bluetooth.uartWriteString(line + "\n")
         sending = false
         return true
     }

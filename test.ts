@@ -9,11 +9,8 @@ let sample = [
  scienceDetection.human(ScienceDigitalPin.P8), scienceDetection.tilt(ScienceDigitalPin.P8), scienceDetection.vibration(ScienceDigitalPin.P8),
  scienceDetection.waterLevel(ScienceDigitalPin.P8), scienceDetection.photoGate(ScienceDigitalPin.P8), scienceDetection.flame(ScienceDigitalPin.P8)
 ]
-scienceData.startBluetooth()
 scienceData.sendUSB(sample)
 scienceData.sendValueUSB(sample[0])
-scienceData.sendValueBluetooth(sample[0])
-if (scienceData.bluetoothConnected()) scienceData.sendBluetooth(sample)
 // Exercise advanced code generation without executing it on a connected board.
 input.onButtonPressed(Button.A, function () {
     let measurements = [

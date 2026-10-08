@@ -1,6 +1,6 @@
-# BRIXEL Science Lab — 0.6.7 개발판
+# BRIXEL Science Lab — 0.7.0 개발판
 
-초등 디지털 과학실험을 위한 **micro:bit V2** MakeCode 확장입니다. 마빗 실드 V2와 현행 DSL 마빗 보드의 센서를 읽고 LCD·OLED·네오픽셀로 표시하거나 바우어버드 프로에 USB·BLE로 보냅니다.
+초등 디지털 과학실험을 위한 **micro:bit V2** MakeCode 확장입니다. 마빗 실드 V2와 현행 DSL 마빗 보드의 센서를 읽고 LCD·OLED·네오픽셀로 표시하거나 바우어버드 프로에 USB(유선)로 보냅니다. 블루투스 무선 전송은 짝 확장 [brixel-science-lab-ble](https://github.com/brixel-editor/pxt-brixel-science-lab-ble)을 추가할 때만 켜집니다.
 
 ## 센서별 사용 안내 바로가기
 
@@ -30,19 +30,27 @@
 https://github.com/brixel-editor/pxt-brixel-science-lab
 ```
 
-현재 공개 버전은 `v0.6.7`입니다. 링크로 가져오는 확장이며 MakeCode의 일반 검색 목록 승인을 받은 것은 아닙니다.
+현재 공개 버전은 `v0.7.0`입니다. 링크로 가져오는 확장이며 MakeCode의 일반 검색 목록 승인을 받은 것은 아닙니다.
 
-설치할 때 `radio`와 호환되지 않는다는 안내가 나오면 **radio를 제거하고 brixel-science-lab을 추가**합니다. 이 확장은 BLE 통신을 사용합니다.
+`v0.7.0`부터 이 확장은 **블루투스를 쓰지 않습니다**(유선 USB 전송만). 그래서 `radio`와 함께 쓸 수 있습니다. **무선 실험을 할 때만** 블루투스 짝 확장을 추가합니다:
+
+```text
+https://github.com/brixel-editor/pxt-brixel-science-lab-ble
+```
+
+짝 확장을 추가할 때 `radio`와 호환되지 않는다는 안내가 나오면 radio를 제거합니다.
 
 `v0.3.1`부터 센서 소제목을 **센서명(칩셋·모델명)**으로 통일했습니다. 예: `eCO2(SGP30)`, `CO2(MH-Z19D)`, `기압(BMP280)`. 모델이 확인되지 않은 범용 모듈에는 모델명을 붙이지 않습니다. eCO2는 CO2 환산값이며 SGP30·CCS811 블록의 선택 메뉴에서 TVOC도 읽을 수 있습니다.
 
 생체 신호의 센서명은 **심박 센서(MAX30102)**입니다. `v0.3.5`에서 사용자가 확인한 보유 센서 칩셋에 맞춰 정정했습니다. 메이크코드가 단일 그룹 소제목을 숨기므로 블록 문구에도 같은 이름을 표시합니다. 빨간빛·적외선 맥파 원시값을 읽으며 실물 검증은 아직 하지 않았습니다.
 
-전기 측정과 바우어버드로 보내기는 **각각 6개 블록을 기본 카테고리에 모두 표시**하며 별도의 더 보기 메뉴를 두지 않습니다. 전압의 원시값·보정·전압(V), USB·블루투스 여러 값 전송도 바로 선택할 수 있습니다.
+전기 측정과 바우어버드로 보내기는 **각각 6개 블록을 기본 카테고리에 모두 표시**하며 별도의 더 보기 메뉴를 두지 않습니다. 전압의 원시값·보정·전압(V), USB 여러 값 전송도 바로 선택할 수 있습니다(블루투스 전송은 짝 확장).
 
 `v0.5.1`부터 **탁도·전압 센서는 마이크로비트 아날로그 핀으로 읽습니다.** 외장 ADS1115 주소·채널 블록과 드라이버를 제거했습니다. 두 센서 모두 보정 없이 읽는 원시값(0~1023) 블록이 있고, 필요할 때 기준값으로 보정해 투과율(%)·전압(V)을 사용할 수 있습니다.
 
 ### 기존 프로젝트 업데이트
+
+`v0.7.0`에서 **블루투스 전송 블록을 짝 확장 [brixel-science-lab-ble](https://github.com/brixel-editor/pxt-brixel-science-lab-ble)으로 옮겼습니다.** 과학실험의 기본은 USB 유선 전송이라, 블루투스를 쓰지 않는 수업에서는 블루투스가 아예 켜지지 않습니다(센서 읽기 실패가 줄고 메모리를 아낌, radio 와 함께 사용 가능). 예전 판의 블루투스 블록으로 만든 작품은 짝 확장을 추가하면 같은 블록이 다시 연결됩니다.
 
 `v0.6.7`에서 **`네오픽셀 밝기 ( )` 블록**을 더했습니다(조도 센서 값 같은 변수로 마지막에 켠 네오픽셀의 밝기를 바꿈). **DHT11/22** 는 신호를 C++로 읽어 실패가 줄었고, 한 번 실패해도 직전 값을 유지합니다(3번 연속 실패해야 -127).
 
@@ -68,12 +76,12 @@ https://github.com/brixel-editor/pxt-brixel-science-lab
 
 1. 메이크코드 편집기를 새로고침합니다.
 2. **JavaScript → 탐색기**를 열고 `brixel-science-lab` 옆의 **버전/새로고침 버튼**을 누릅니다.
-3. 버전이 `v0.6.7`인지 확인하고 **블록** 화면으로 돌아갑니다. 온도와 날씨의 `시계(DS1307)`에서 시간 설정 블록을, 각 센서 소제목 아래에서 보정 블록을 확인합니다.
+3. 버전이 `v0.7.0`인지 확인하고 **블록** 화면으로 돌아갑니다. 온도와 날씨의 `시계(DS1307)`에서 시간 설정 블록을, 각 센서 소제목 아래에서 보정 블록을 확인합니다.
 
-확장 검색창에 붙이는 URL의 `#v0.6.7`만으로 설치 버전이 고정되지는 않을 수 있습니다. 계속 이전 버전이라면 **탐색기 → pxt.json → Edit settings as text**에서 `dependencies` 안의 해당 항목만 다음 값으로 바꾸고 다른 파일로 이동해 저장한 뒤 편집기를 새로고침합니다.
+확장 검색창에 붙이는 URL의 `#v0.7.0`만으로 설치 버전이 고정되지는 않을 수 있습니다. 계속 이전 버전이라면 **탐색기 → pxt.json → Edit settings as text**에서 `dependencies` 안의 해당 항목만 다음 값으로 바꾸고 다른 파일로 이동해 저장한 뒤 편집기를 새로고침합니다.
 
 ```json
-"brixel-science-lab": "github:brixel-editor/pxt-brixel-science-lab#v0.6.7"
+"brixel-science-lab": "github:brixel-editor/pxt-brixel-science-lab#v0.7.0"
 ```
 
 기존 프로젝트의 다른 설정과 코드는 그대로 둡니다.
@@ -95,7 +103,7 @@ https://github.com/brixel-editor/pxt-brixel-science-lab
 | 생체 신호 | MAX30102 빨간빛·적외선 맥파 원시값, AS608 지문 시작·등록·인식·상태 | 5 |
 | 전기 측정 | WCS2801 전류·보정, 아날로그 전압 원시값·보정·V | 6 |
 | 화면 표시 | LCD1602, SSD1306/SH1106 OLED, WS2812 네오픽셀 | 6 |
-| 바우어버드로 보내기 | USB·BLE 한 값/여러 값 전송, BLE 시작·연결 상태 | 6 |
+| 바우어버드로 보내기 | USB 한 값/여러 값 전송 (BLE 는 짝 확장 brixel-science-lab-ble) | 2 |
 
 ## 시작 예제
 
@@ -110,14 +118,14 @@ basic.forever(function () {
 })
 ```
 
-수온 센서 P8 → BLE:
+수온 센서 P8 → BLE (짝 확장 brixel-science-lab-ble 필요):
 
 ```typescript
-scienceData.startBluetooth()
+scienceBluetooth.startBluetooth()
 basic.forever(function () {
-    if (scienceData.bluetoothConnected()) {
+    if (scienceBluetooth.bluetoothConnected()) {
         let water = scienceWater.temperature(ScienceDigitalPin.P8, 1)
-        if (water != -127) scienceData.sendValueBluetooth(water)
+        if (water != -127) scienceBluetooth.sendValueBluetooth(water)
     }
     basic.pause(1000)
 })
@@ -125,7 +133,7 @@ basic.forever(function () {
 
 바우어버드는 **구분자 쉼표**, USB는 **115200 baud**, BLE는 **micro:bit 모드**로 연결하고 기록을 시작합니다. 여러 센서는 여러 값 전송 블록의 배열에 일정한 순서로 넣습니다. 예: `scienceData.sendUSB([temperature, humidity, light])`.
 
-한 측정은 `23.5,48,700\n` 형태입니다. 센서명·단위·진단 문구는 데이터 줄에 넣지 않습니다. 전송 블록은 반환값 없는 명령형입니다. TypeScript의 `trySendUSB`/`trySendBluetooth`는 전송 시도 여부를 반환하며 웹앱 도착 확인을 뜻하지 않습니다. 빈 배열·NaN·Infinity·연결 전 BLE 전송은 건너뜁니다.
+한 측정은 `23.5,48,700\n` 형태입니다. 센서명·단위·진단 문구는 데이터 줄에 넣지 않습니다. 전송 블록은 반환값 없는 명령형입니다. TypeScript의 `trySendUSB`(짝 확장은 `scienceBluetooth.trySend`)는 전송 시도 여부를 반환하며 웹앱 도착 확인을 뜻하지 않습니다. 빈 배열·NaN·Infinity·연결 전 BLE 전송은 건너뜁니다.
 
 ## 값의 의미와 조건
 
