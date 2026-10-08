@@ -11,6 +11,7 @@ using namespace pxt;
 namespace scienceNative {
 #if MICROBIT_CODAL
 static codal::NRF52Serial *sensorSerial = NULL;
+static bool sensorRxOnly = false;
 static bool dustSampling = false;
 static bool dustWait(volatile uint32_t &event, uint32_t timeout) {
     uint64_t start = system_timer_current_time_us();
@@ -148,11 +149,16 @@ int sampleDust(int analog, int lamp) {
 bool startSensorUART(int rx, int tx, int baud) {
 #if MICROBIT_CODAL
     auto rxPin = pxt::getPin(rx);
-    auto txPin = pxt::getPin(tx);
-    if (!rxPin || !txPin || rx == tx) return false;
+    // tx < 0: receive-only. CODAL needs a TX pin, so the RX pin is passed and the UARTE TX output is
+    // disconnected right after (CODAL itself only writes PSEL in configurePins; it never configures GPIO).
+    bool rxOnly = tx < 0;
+    auto txPin = rxOnly ? rxPin : pxt::getPin(tx);
+    if (!rxPin || !txPin || (!rxOnly && rx == tx)) return false;
     if (baud != 9600 && baud != 19200 && baud != 38400 && baud != 57600 && baud != 115200) return false;
     if (!sensorSerial) sensorSerial = new codal::NRF52Serial(*txPin, *rxPin, NRF_UARTE1);
     else if (sensorSerial->redirect(*txPin, *rxPin) != DEVICE_OK) return false;
+    if (rxOnly) NRF_UARTE1->PSEL.TXD = 0xFFFFFFFF;   // bit 31 = disconnected
+    sensorRxOnly = rxOnly;
     if (sensorSerial->setRxBufferSize(254) != DEVICE_OK || sensorSerial->setBaudrate(baud) != DEVICE_OK) return false;
     // Initialize the lazy receive buffer and discard old data.
     uint8_t discard[64];
@@ -176,7 +182,7 @@ Buffer readSensorUART() {
 //%
 bool writeSensorUART(Buffer data) {
 #if MICROBIT_CODAL
-    if (!sensorSerial || data->length == 0 || data->length > 32) return false;
+    if (!sensorSerial || sensorRxOnly || data->length == 0 || data->length > 32) return false;
     return sensorSerial->send(data->data, data->length, codal::SYNC_SLEEP) == data->length;
 #else
     return false;

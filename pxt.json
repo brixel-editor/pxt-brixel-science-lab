@@ -1,6 +1,6 @@
 {
   "name": "brixel-science-lab",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "micro:bit V2 science sensor blocks and Bowerbird USB data collection (Bluetooth: brixel-science-lab-ble)",
   "license": "MIT",
   "dependencies": {

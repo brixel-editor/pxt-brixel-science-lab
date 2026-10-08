@@ -39,10 +39,15 @@ namespace scienceAir {
             }
         }
     }
-    /** PMS3003/7003, factory active mode, 9600 baud. Sensor TX to micro:bit RX; RX to TX. Needs 5V power and 3.3V UART logic. Only the last started PMS/CO2/GPS/fingerprint sensor uses UARTE1; USB stays available. */
-    //% blockId=science_pms_start block="start particulate sensor RX $rx TX $tx" group="Particulate matter(PMS3003/7003)"
-    //% rx.defl=ScienceDigitalPin.P13 tx.defl=ScienceDigitalPin.P14
-    export function startPMS(rx: ScienceDigitalPin, tx: ScienceDigitalPin): void {
+    /** PMS3003 (3-pin: G, V, TX). Connect the sensor TX signal to the selected pin. Factory active mode, 9600 baud, 5V power, 3.3V signal. Only the last started PMS/CO2/GPS/fingerprint sensor is read; USB stays available. */
+    //% blockId=science_pms3003_start block="start particulate sensor PMS3003 pin $pin" group="Particulate matter(PMS3003/7003)"
+    //% pin.defl=ScienceDigitalPin.P9 weight=100
+    export function startPMS3003(pin: ScienceDigitalPin): void { beginPMS(pin, -1) }
+    /** PMS7003 (4-pin: G, V, TX, RX). Sensor TX to micro:bit RX, sensor RX to micro:bit TX. Factory active mode, 9600 baud, 5V power, 3.3V signal. Only the last started PMS/CO2/GPS/fingerprint sensor is read; USB stays available. */
+    //% blockId=science_pms_start block="start particulate sensor PMS7003 RX $rx TX $tx" group="Particulate matter(PMS3003/7003)"
+    //% rx.defl=ScienceDigitalPin.P13 tx.defl=ScienceDigitalPin.P14 weight=99
+    export function startPMS(rx: ScienceDigitalPin, tx: ScienceDigitalPin): void { beginPMS(rx, tx) }
+    function beginPMS(rx: number, tx: number): void {
         pmReady = false; pmAt = -10000; pmBytes = []
         pmReady = scienceUART.start(1, rx, tx)
         pmWarmAt = control.millis() + 30000

@@ -22,8 +22,10 @@ namespace scienceUART {
         session++
         let ready = false
         if ((baud == 9600 || baud == 19200 || baud == 38400 || baud == 57600 || baud == 115200) &&
-            rx != tx && scienceInternal.validDigital(rx) && scienceInternal.validDigital(tx)) {
-            scienceInternal.prepare(rx); scienceInternal.prepare(tx)
+            rx != tx && scienceInternal.validDigital(rx) && (tx == -1 || scienceInternal.validDigital(tx))) {
+            // tx == -1: receive-only sensor (3-pin, e.g. PMS3003); the micro:bit never drives a TX pin.
+            scienceInternal.prepare(rx)
+            if (tx != -1) scienceInternal.prepare(tx)
             ready = scienceNative.startSensorUART(rx, tx, baud)
         }
         if (ready) owner = nextOwner

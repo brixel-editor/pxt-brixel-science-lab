@@ -56,6 +56,7 @@ input.onButtonPressed(Button.A, function () {
 })
 
 input.onButtonPressed(Button.B, function () {
+ scienceAir.startPMS3003(ScienceDigitalPin.P9)
  scienceAir.startPMS(ScienceDigitalPin.P13, ScienceDigitalPin.P14)
  scienceMotion.startEncoder(ScienceDigitalPin.P1, ScienceDigitalPin.P2)
  scienceMotion.zeroEncoder()
