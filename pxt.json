@@ -1,0 +1,72 @@
+{
+  "name": "brixel-science-lab",
+  "version": "0.3.0",
+  "description": "micro:bit V2 science sensor blocks and Bowerbird USB/BLE data collection",
+  "license": "MIT",
+  "dependencies": {
+    "core": "*",
+    "bluetooth": "*"
+  },
+  "files": [
+    "core.ts",
+    "sensors.ts",
+    "communication.ts",
+    "README.md",
+    "_locales/ko/brixel-science-lab-strings.json",
+    "_locales/en/brixel-science-lab-strings.json",
+    "bus.ts",
+    "native.cpp",
+    "climate.ts",
+    "motion-i2c.ts",
+    "analog-science.ts",
+    "digital-sensors.ts",
+    "water-driver.ts",
+    "lcd-driver.ts",
+    "oled-driver.ts",
+    "displays.ts",
+    "air.ts",
+    "ccs811.ts",
+    "pulse.ts",
+    "particulate.ts",
+    "encoder.ts",
+    "clock.ts",
+    "uart.ts",
+    "co2.ts",
+    "distance.ts",
+    "gesture.ts",
+    "external-adc.ts",
+    "SOURCES.md",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "testFiles": [
+    "test.ts"
+  ],
+  "public": true,
+  "supportedTargets": [
+    "microbit"
+  ],
+  "preferredEditor": "blocksprj",
+  "disablesVariants": [
+    "mbdal"
+  ],
+  "yotta": {
+    "configIsJustDefaults": true,
+    "config": {
+      "HARDWARE_NEOPIXEL": 1,
+      "microbit-dal": {
+        "bluetooth": {
+          "enabled": 1,
+          "pairing_mode": 0,
+          "private_addressing": 0,
+          "open": 1,
+          "whitelist": 0,
+          "advertising_timeout": 0,
+          "tx_power": 6,
+          "dfu_service": 0,
+          "event_service": 1,
+          "device_info_service": 1
+        }
+      }
+    }
+  }
+}
