@@ -35,7 +35,8 @@ namespace scienceBio {
     }
     function pulseFail(): void { pulseRed = -1; pulseIR = -1; pulseAt = -1000; pulseReady = false }
     /** MAX30105 I2C optical pulse waveform; compatible with MAX30102 red/IR mode. Raw 18-bit counts, read every 20..100ms. Not heart rate or SpO2. Missing/stale data or FIFO overflow=-1. */
-    //% blockId=science_pulse_raw block="heart rate sensor $channel pulse raw value" group="Heart rate sensor(MAX30105)"
+    // MakeCode hides headings when a category has only one group, so keep the model in the block label too.
+    //% blockId=science_pulse_raw block="heart rate sensor(MAX30105) $channel pulse raw value" group="Heart rate sensor(MAX30105)"
     export function pulseRaw(channel: SciencePulseChannel): number {
         if (channel != SciencePulseChannel.Red && channel != SciencePulseChannel.Infrared) return -1
         scienceBus.acquire()
