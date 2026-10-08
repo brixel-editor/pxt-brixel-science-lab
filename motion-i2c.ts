@@ -215,19 +215,13 @@ namespace scienceDetection {
         if (ultrasonicTemperature == -999) return -1
         scienceInternal.prepare(trigger)
         scienceInternal.prepare(echo)
-        let t = <DigitalPin><number>trigger
-        let e = <DigitalPin><number>echo
-        pins.setPull(e, PinPullMode.PullNone)
+        // Native polling measurement (scienceNative.echoPulse), not pins.pulseIn: on V2 the
+        // event-based pulseIn worked briefly and then returned only timeouts in field tests.
         // A single missed echo is common (soft or angled target); try up to 3 pings before reporting -1.
         let duration = 0
         for (let i = 0; i < 3 && duration <= 0; i++) {
             if (i > 0) basic.pause(60)
-            pins.digitalWritePin(t, 0)
-            control.waitMicros(2)
-            pins.digitalWritePin(t, 1)
-            control.waitMicros(10)
-            pins.digitalWritePin(t, 0)
-            duration = pins.pulseIn(e, PulseValue.High, 30000)
+            duration = scienceNative.echoPulse(trigger, echo, 30000)
         }
         return duration > 0 ? duration * (331 + 0.6 * ultrasonicTemperature) / 20000 : -1
     }

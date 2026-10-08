@@ -18,6 +18,33 @@ static bool dustWait(volatile uint32_t &event, uint32_t timeout) {
     return true;
 }
 #endif
+// HC-SR04 echo width in microseconds by polling the pin, like Arduino pulseIn.
+// CODAL pins.pulseIn uses edge events plus a timer wakeup (getPulseUs); on V2 repeated
+// calls returned values for a while and then only timeouts. 0 = no echo, -1 = bad pins.
+//%
+int echoPulse(int trigger, int echo, int timeout) {
+#if MICROBIT_CODAL
+    auto trig = pxt::getPin(trigger);
+    auto input = pxt::getPin(echo);
+    if (!trig || !input || trigger == echo || timeout <= 0) return -1;
+    input->setPull(codal::PullMode::None);
+    uint64_t start = system_timer_current_time_us();
+    // A previous ping with no reflection can still hold ECHO high; let it finish first.
+    while (input->getDigitalValue()) if (system_timer_current_time_us() - start > (uint64_t)timeout) return 0;
+    trig->setDigitalValue(0);
+    sleep_us(4);
+    trig->setDigitalValue(1);
+    sleep_us(12);
+    trig->setDigitalValue(0);
+    start = system_timer_current_time_us();
+    while (!input->getDigitalValue()) if (system_timer_current_time_us() - start > (uint64_t)timeout) return 0;
+    uint64_t rise = system_timer_current_time_us();
+    while (input->getDigitalValue()) if (system_timer_current_time_us() - start > (uint64_t)timeout) return 0;
+    return (int)(system_timer_current_time_us() - rise);
+#else
+    return -1;
+#endif
+}
 // One explicit SAADC conversion during the Sharp-style LED pulse. Core analogReadPin
 // returns a free-running/oversampled DMA value, which is not a synchronized sample.
 // Borrow the ADC through CODAL sleep/resume, never while a streaming consumer is active.
