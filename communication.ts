@@ -34,7 +34,6 @@ namespace scienceData {
 
     /** Send one sample as comma-separated numbers. Set Bowerbird to comma and 115200 baud. Empty or invalid samples are skipped. */
     //% blockId=science_send_usb block="send values $values to Bowerbird by USB" group="Send"
-    //% advanced=true
     export function sendUSB(values: number[]): void { trySendUSB(values) }
 
     /** Put one sensor reading in this block. Bowerbird USB settings: 115200 baud, comma delimiter. */
@@ -57,7 +56,6 @@ namespace scienceData {
 
     /** Start Bluetooth once at program start. A disconnected sample is dropped. No headers or units are sent. */
     //% blockId=science_send_ble block="send values $values to Bowerbird by Bluetooth" group="Send"
-    //% advanced=true
     export function sendBluetooth(values: number[]): void { trySendBluetooth(values) }
 
     /** Start Bluetooth at program start and connect Bowerbird in micro:bit mode. Put a single sensor reading in this block. */

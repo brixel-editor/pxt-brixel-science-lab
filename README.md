@@ -1,4 +1,4 @@
-# BRIXEL Science Lab — 0.3.2 개발판
+# BRIXEL Science Lab — 0.3.3 개발판
 
 초등 디지털 과학실험을 위한 **micro:bit V2** MakeCode 확장입니다. 마빗 실드 V2와 현행 DSL 마빗 보드의 센서를 읽고 LCD·OLED·네오픽셀로 표시하거나 바우어버드 프로에 USB·BLE로 보냅니다.
 
@@ -10,7 +10,7 @@
 https://github.com/brixel-editor/pxt-brixel-science-lab
 ```
 
-현재 공개 버전은 `v0.3.2`입니다. 링크로 가져오는 확장이며 MakeCode의 일반 검색 목록 승인을 받은 것은 아닙니다.
+현재 공개 버전은 `v0.3.3`입니다. 링크로 가져오는 확장이며 MakeCode의 일반 검색 목록 승인을 받은 것은 아닙니다.
 
 설치할 때 `radio`와 호환되지 않는다는 안내가 나오면 **radio를 제거하고 brixel-science-lab을 추가**합니다. 이 확장은 BLE 통신을 사용합니다.
 
@@ -18,7 +18,7 @@ https://github.com/brixel-editor/pxt-brixel-science-lab
 
 `v0.3.2`에서 생체 신호 소제목을 **심박 센서(MAX30105)**로 정리했습니다. 빨간빛·적외선 맥파 원시값을 읽으며 MAX30102의 같은 두 LED 모드도 호환됩니다. 공통 레지스터 방식은 자료로 확인했고 실물 검증은 아직 하지 않았습니다.
 
-전기 측정은 외장 ADC 주소 설정까지 **6개 블록을 기본 카테고리에 모두 표시**하며 별도의 더 보기 메뉴를 두지 않습니다.
+전기 측정과 바우어버드로 보내기는 **각각 6개 블록을 기본 카테고리에 모두 표시**하며 별도의 더 보기 메뉴를 두지 않습니다. 외장 ADC 주소 설정과 USB·블루투스 여러 값 전송도 바로 선택할 수 있습니다.
 
 ### 기존 프로젝트 업데이트
 
@@ -26,12 +26,12 @@ https://github.com/brixel-editor/pxt-brixel-science-lab
 
 1. 메이크코드 편집기를 새로고침합니다.
 2. **JavaScript → 탐색기**를 열고 `brixel-science-lab` 옆의 **버전/새로고침 버튼**을 누릅니다.
-3. 버전이 `v0.3.2`인지 확인하고 **블록** 화면으로 돌아갑니다. 온도와 날씨에 `온도(NTC)`, `기압(BMP280)` 등의 제목이, 생체 신호에 `심박 센서(MAX30105)`가 표시됩니다.
+3. 버전이 `v0.3.3`인지 확인하고 **블록** 화면으로 돌아갑니다. 온도와 날씨에 `온도(NTC)`, `기압(BMP280)` 등의 제목이, 생체 신호에 `심박 센서(MAX30105)`가 표시됩니다. 전기 측정과 바우어버드로 보내기는 더 보기 없이 모든 블록이 표시됩니다.
 
-확장 검색창에 붙이는 URL의 `#v0.3.2`만으로 설치 버전이 고정되지는 않을 수 있습니다. 계속 이전 버전이라면 **탐색기 → pxt.json → Edit settings as text**에서 `dependencies` 안의 해당 항목만 다음 값으로 바꾸고 다른 파일로 이동해 저장한 뒤 편집기를 새로고침합니다.
+확장 검색창에 붙이는 URL의 `#v0.3.3`만으로 설치 버전이 고정되지는 않을 수 있습니다. 계속 이전 버전이라면 **탐색기 → pxt.json → Edit settings as text**에서 `dependencies` 안의 해당 항목만 다음 값으로 바꾸고 다른 파일로 이동해 저장한 뒤 편집기를 새로고침합니다.
 
 ```json
-"brixel-science-lab": "github:brixel-editor/pxt-brixel-science-lab#v0.3.2"
+"brixel-science-lab": "github:brixel-editor/pxt-brixel-science-lab#v0.3.3"
 ```
 
 기존 프로젝트의 다른 설정과 코드는 그대로 둡니다.
@@ -77,7 +77,7 @@ basic.forever(function () {
 })
 ```
 
-바우어버드는 **구분자 쉼표**, USB는 **115200 baud**, BLE는 **micro:bit 모드**로 연결하고 기록을 시작합니다. 여러 센서는 고급 전송 블록의 배열에 일정한 순서로 넣습니다. 예: `scienceData.sendUSB([temperature, humidity, light])`.
+바우어버드는 **구분자 쉼표**, USB는 **115200 baud**, BLE는 **micro:bit 모드**로 연결하고 기록을 시작합니다. 여러 센서는 여러 값 전송 블록의 배열에 일정한 순서로 넣습니다. 예: `scienceData.sendUSB([temperature, humidity, light])`.
 
 한 측정은 `23.5,48,700\n` 형태입니다. 센서명·단위·진단 문구는 데이터 줄에 넣지 않습니다. 전송 블록은 반환값 없는 명령형입니다. TypeScript의 `trySendUSB`/`trySendBluetooth`는 전송 시도 여부를 반환하며 웹앱 도착 확인을 뜻하지 않습니다. 빈 배열·NaN·Infinity·연결 전 BLE 전송은 건너뜁니다.
 
