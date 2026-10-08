@@ -52,6 +52,10 @@ input.onButtonPressed(Button.A, function () {
     scienceDisplay.pixels(ScienceDigitalPin.P9, 8, SciencePixelColor.Red)
     scienceDisplay.pixelsColor(ScienceDigitalPin.P9, 8, scienceDisplay.rgb(0, 255, 128), 128)
     scienceDisplay.pixelsBrightness(input.lightLevel())
+    scienceDisplay.setupStrip(ScienceDigitalPin.P9, 18)
+    for (let n = 1; n <= 18; n++) scienceDisplay.setLed(n, input.lightLevel(), scienceDisplay.rgb(255, 0, 0))
+    scienceDisplay.setAll(64, scienceDisplay.rgb(0, 0, 255))
+    scienceDisplay.clearStrip()
     scienceData.sendUSB(measurements)
 })
 

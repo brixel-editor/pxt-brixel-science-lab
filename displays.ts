@@ -114,6 +114,63 @@ namespace scienceDisplay {
         if (displayOK) scienceOLEDDriver.oledClear()
         scienceBus.release()
     }
+    // ---- Strip model: set up pin/count once, then light LEDs by number (1..count). ----
+    let stripPin = -1
+    let stripData: Buffer = null   // GRB bytes, brightness already applied
+    /** Run once at start: the pin the NeoPixel signal wire is in and how many LEDs (1..64). All LEDs start off. Many LEDs at high brightness need more current than the shield 5V may supply; start low. */
+    //% blockId=science_strip_setup block="set up NeoPixel pin $pin LED count $count" group="NeoPixel(WS2812)" weight=100
+    //% pin.defl=ScienceDigitalPin.P9 count.min=1 count.max=64 count.defl=8
+    export function setupStrip(pin: ScienceDigitalPin, count: number): void {
+        if (!scienceInternal.validDigital(pin) || !scienceInternal.finite(count) || count < 1 || count > 64) return
+        stripPin = pin
+        stripData = pins.createBuffer(Math.floor(count) * 3)
+        sendStrip()
+    }
+    /** Light LED number 1..LED count with a brightness 0..255 and a color. Plug a variable into the number to walk along the strip, or a sensor value into the brightness. Needs the set-up block first; other numbers are ignored. */
+    //% blockId=science_strip_led block="NeoPixel LED $index brightness $brightness color $color" group="NeoPixel(WS2812)" weight=90
+    //% index.min=1 index.max=64 index.defl=1 brightness.min=0 brightness.max=255 brightness.defl=32
+    //% color.shadow="science_rgb"
+    export function setLed(index: number, brightness: number, color: number): void {
+        if (!stripData || !scienceInternal.finite(index)) return
+        index = Math.floor(index)
+        if (index < 1 || index * 3 > stripData.length) return
+        putLed(index - 1, brightness, color)
+        sendStrip()
+    }
+    /** Light every LED with the same brightness 0..255 and color. Needs the set-up block first. */
+    //% blockId=science_strip_all block="NeoPixel all LEDs brightness $brightness color $color" group="NeoPixel(WS2812)" weight=85
+    //% brightness.min=0 brightness.max=255 brightness.defl=32
+    //% color.shadow="science_rgb"
+    export function setAll(brightness: number, color: number): void {
+        if (!stripData) return
+        for (let i = 0; i * 3 < stripData.length; i++) putLed(i, brightness, color)
+        sendStrip()
+    }
+    /** Turn every LED off. */
+    //% blockId=science_strip_clear block="NeoPixel all LEDs off" group="NeoPixel(WS2812)" weight=80
+    export function clearStrip(): void {
+        if (!stripData) return
+        stripData.fill(0)
+        sendStrip()
+    }
+    function putLed(i: number, brightness: number, color: number): void {
+        if (!scienceInternal.finite(brightness) || !scienceInternal.finite(color)) return
+        let level = Math.max(0, Math.min(255, Math.round(brightness)))
+        stripData[i * 3] = Math.idiv(((color >> 8) & 255) * level, 255)
+        stripData[i * 3 + 1] = Math.idiv(((color >> 16) & 255) * level, 255)
+        stripData[i * 3 + 2] = Math.idiv((color & 255) * level, 255)
+    }
+    function sendStrip(): void {
+        displayOK = false
+        if (stripPin < 0 || !stripData) return
+        while (pixelBusy) basic.pause(1)
+        pixelBusy = true
+        scienceInternal.prepare(stripPin)
+        displayOK = scienceNative.showPixels(stripPin, stripData)
+        // CODAL WS2812B::play blocks until its DMA stream consumes the frame. Yield between frames.
+        basic.pause(5)
+        pixelBusy = false
+    }
     /** dis-013/014 WS2812 RGB: pick the color and brightness 0..255. Many LEDs at high brightness need more current than the shield 5V may supply; start low. V2 hardware DMA; BLE coexistence still needs physical testing. */
     //% blockId=science_pixels_rgb block="NeoPixel pin $pin count $count brightness $brightness color $color" group="NeoPixel(WS2812)"
     //% inlineInputMode=external
@@ -123,12 +180,12 @@ namespace scienceDisplay {
     //% brightness.defl=32
     //% brightness.fieldEditor="numberdropdown" brightness.fieldOptions.decompileLiterals=true
     //% brightness.fieldOptions.data='[["0", 0], ["32", 32], ["64", 64], ["128", 128], ["255", 255]]'
-    //% color.shadow="science_rgb"
+    //% color.shadow="science_rgb" deprecated=true
     export function pixelsColor(pin: ScienceDigitalPin, count: number, color: number, brightness: number): void {
         showColor(pin, count, color, brightness)
     }
     /** Mix a color from red, green and blue, each 0..255. Plugs into the NeoPixel color slot. */
-    //% blockId=science_rgb block="red $red green $green blue $blue" group="NeoPixel(WS2812)"
+    //% blockId=science_rgb block="red $red green $green blue $blue" group="NeoPixel(WS2812)" weight=70
     //% red.min=0 red.max=255 red.defl=255 green.min=0 green.max=255 green.defl=0 blue.min=0 blue.max=255 blue.defl=0
     //% inlineInputMode=inline
     export function rgb(red: number, green: number, blue: number): number {
@@ -139,7 +196,7 @@ namespace scienceDisplay {
     }
     /** Change the brightness (0..255) of the NeoPixels last lit by the NeoPixel color block and redraw them. Plug a variable or sensor value in, e.g. light level. Running the color block again uses its own brightness. */
     //% blockId=science_pixels_brightness block="NeoPixel brightness $brightness" group="NeoPixel(WS2812)"
-    //% brightness.min=0 brightness.max=255 brightness.defl=32
+    //% brightness.min=0 brightness.max=255 brightness.defl=32 deprecated=true
     export function pixelsBrightness(brightness: number): void {
         if (!scienceInternal.finite(brightness)) return
         pixelLevel = Math.max(0, Math.min(255, Math.round(brightness)))
