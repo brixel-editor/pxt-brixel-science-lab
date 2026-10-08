@@ -111,10 +111,15 @@ namespace scienceDisplay {
         scienceBus.release()
     }
     /** dis-013/014 WS2812 RGB: pick the color and brightness 0..255. Many LEDs at high brightness need more current than the shield 5V may supply; start low. V2 hardware DMA; BLE coexistence still needs physical testing. */
-    //% blockId=science_pixels_rgb block="NeoPixel pin $pin count $count color $color brightness $brightness" group="NeoPixel(WS2812)"
-    //% pin.defl=ScienceDigitalPin.P9 count.min=1 count.max=64 count.defl=8
+    //% blockId=science_pixels_rgb block="NeoPixel pin $pin count $count brightness $brightness color $color" group="NeoPixel(WS2812)"
+    //% inlineInputMode=external
+    //% pin.defl=ScienceDigitalPin.P9 count.defl=8
+    //% count.fieldEditor="numberdropdown" count.fieldOptions.decompileLiterals=true
+    //% count.fieldOptions.data='[["8", 8], ["16", 16], ["18", 18], ["24", 24], ["30", 30], ["60", 60]]'
+    //% brightness.defl=32
+    //% brightness.fieldEditor="numberdropdown" brightness.fieldOptions.decompileLiterals=true
+    //% brightness.fieldOptions.data='[["0", 0], ["32", 32], ["64", 64], ["128", 128], ["255", 255]]'
     //% color.shadow="science_rgb"
-    //% brightness.min=0 brightness.max=255 brightness.defl=32
     export function pixelsColor(pin: ScienceDigitalPin, count: number, color: number, brightness: number): void {
         showColor(pin, count, color, brightness)
     }
