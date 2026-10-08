@@ -113,10 +113,20 @@ namespace scienceDisplay {
     /** dis-013/014 WS2812 RGB: pick the color and brightness 0..255. Many LEDs at high brightness need more current than the shield 5V may supply; start low. V2 hardware DMA; BLE coexistence still needs physical testing. */
     //% blockId=science_pixels_rgb block="NeoPixel pin $pin count $count color $color brightness $brightness" group="NeoPixel(WS2812)"
     //% pin.defl=ScienceDigitalPin.P9 count.min=1 count.max=64 count.defl=8
-    //% color.shadow="colorNumberPicker" color.defl=0xff0000
+    //% color.shadow="science_rgb"
     //% brightness.min=0 brightness.max=255 brightness.defl=32
     export function pixelsColor(pin: ScienceDigitalPin, count: number, color: number, brightness: number): void {
         showColor(pin, count, color, brightness)
+    }
+    /** Mix a color from red, green and blue, each 0..255. Plugs into the NeoPixel color slot. */
+    //% blockId=science_rgb block="red $red green $green blue $blue" group="NeoPixel(WS2812)"
+    //% red.min=0 red.max=255 red.defl=255 green.min=0 green.max=255 green.defl=0 blue.min=0 blue.max=255 blue.defl=0
+    //% inlineInputMode=inline
+    export function rgb(red: number, green: number, blue: number): number {
+        let r = Math.max(0, Math.min(255, Math.round(red)))
+        let g = Math.max(0, Math.min(255, Math.round(green)))
+        let b = Math.max(0, Math.min(255, Math.round(blue)))
+        return (r << 16) | (g << 8) | b
     }
     /** Older fixed-color block kept so saved projects still open; brightness 32/255. */
     //% blockId=science_pixels block="NeoPixel pin $pin count $count color $color" group="NeoPixel(WS2812)"

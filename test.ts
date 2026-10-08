@@ -53,7 +53,7 @@ input.onButtonPressed(Button.A, function () {
     scienceDisplay.oledLine(1, "23.5")
     scienceDisplay.oledClear()
     scienceDisplay.pixels(ScienceDigitalPin.P9, 8, SciencePixelColor.Red)
-    scienceDisplay.pixelsColor(ScienceDigitalPin.P9, 8, 0x00ff80, 128)
+    scienceDisplay.pixelsColor(ScienceDigitalPin.P9, 8, scienceDisplay.rgb(0, 255, 128), 128)
     scienceData.sendUSB(measurements)
 })
 
