@@ -58,6 +58,15 @@ namespace scienceInternal {
         prepare(pin)
         return pins.digitalReadPin(<DigitalPin><number>pin)
     }
+    // Display blocks accept text or numbers. Non-integer numbers are rounded to 2 decimals to fit a 16-character LCD line.
+    export function displayText(value: any): string {
+        if (typeof value == "number") {
+            let n = <number>value
+            if (finite(n) && n != Math.floor(n)) n = Math.round(n * 100) / 100
+            return "" + n
+        }
+        return "" + value
+    }
     export function finite(value: number): boolean {
         return value == value && value - value == 0
     }

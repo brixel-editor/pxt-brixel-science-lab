@@ -148,8 +148,8 @@ namespace scienceDetection {
         ultrasonicTemperature = scienceInternal.finite(temperature) && temperature >= 0 && temperature <= 50 ? temperature : -999
     }
     /** Set temperature first, then measure a flat perpendicular target with a ruler (10..300cm). Captures 8 echoes to correct a small mounting offset (within 10cm), not reflectivity or sound speed. Lost on restart; failed capture makes this pair unavailable until recalibrated. */
-    //% blockId=science_ultrasonic_calibrate block="ultrasonic trigger $trigger echo $echo calibrate distance $cm cm" group="Ultrasonic distance"
-    //% trigger.defl=ScienceDigitalPin.P13 echo.defl=ScienceDigitalPin.P14 cm.defl=30 cm.min=10 cm.max=300
+    //% blockId=science_ultrasonic_calibrate block="ultrasonic echo $echo trigger $trigger calibrate distance $cm cm" group="Ultrasonic distance"
+    //% echo.defl=ScienceDigitalPin.P13 trigger.defl=ScienceDigitalPin.P14 cm.defl=30 cm.min=10 cm.max=300
     export function calibrateUltrasonic(trigger: ScienceDigitalPin, echo: ScienceDigitalPin, cm: number): void {
         if (!scienceInternal.validDigital(trigger) || !scienceInternal.validDigital(echo) || trigger == echo) return
         let key = trigger * 1000 + echo
@@ -200,8 +200,8 @@ namespace scienceDetection {
         return result
     }
     /** Two-signal ultrasonic only: connect separate TRIG and ECHO. A 3-pin single-signal module requires another protocol and is not supported here. Level-shift 5V ECHO. No echo=-1 cm. */
-    //% blockId=science_ultrasonic block="ultrasonic trigger $trigger echo $echo distance (cm)" group="Ultrasonic distance"
-    //% trigger.defl=ScienceDigitalPin.P13 echo.defl=ScienceDigitalPin.P14
+    //% blockId=science_ultrasonic block="ultrasonic echo $echo trigger $trigger distance (cm)" group="Ultrasonic distance"
+    //% echo.defl=ScienceDigitalPin.P13 trigger.defl=ScienceDigitalPin.P14
     export function ultrasonic(trigger: ScienceDigitalPin, echo: ScienceDigitalPin): number {
         let raw = ultrasonicRaw(trigger, echo)
         if (raw < 0) return -1
@@ -218,12 +218,17 @@ namespace scienceDetection {
         let t = <DigitalPin><number>trigger
         let e = <DigitalPin><number>echo
         pins.setPull(e, PinPullMode.PullNone)
-        pins.digitalWritePin(t, 0)
-        control.waitMicros(2)
-        pins.digitalWritePin(t, 1)
-        control.waitMicros(10)
-        pins.digitalWritePin(t, 0)
-        let duration = pins.pulseIn(e, PulseValue.High, 30000)
+        // A single missed echo is common (soft or angled target); try up to 3 pings before reporting -1.
+        let duration = 0
+        for (let i = 0; i < 3 && duration <= 0; i++) {
+            if (i > 0) basic.pause(60)
+            pins.digitalWritePin(t, 0)
+            control.waitMicros(2)
+            pins.digitalWritePin(t, 1)
+            control.waitMicros(10)
+            pins.digitalWritePin(t, 0)
+            duration = pins.pulseIn(e, PulseValue.High, 30000)
+        }
         return duration > 0 ? duration * (331 + 0.6 * ultrasonicTemperature) / 20000 : -1
     }
 }

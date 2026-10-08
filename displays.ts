@@ -43,15 +43,16 @@ namespace scienceDisplay {
     }
     /** dis-001: connect LCD1602 to the shield's suitable I2C supply port. Address 0x20/0x27/0x3F is found automatically. English/numbers, 16 characters per line. */
     //% blockId=science_lcd_line block="LCD line $line text $text" group="LCD(LCD1602)"
-    //% line.min=1 line.max=2 line.defl=1 text.defl="Hello"
-    export function lcdLine(line: number, text: string): void {
+    //% line.min=1 line.max=2 line.defl=1 text.shadow=text text.defl="Hello"
+    export function lcdLine(line: number, text: any): void {
         displayOK = false
         if (line != 1 && line != 2) return
+        let shown = scienceInternal.displayText(text)
         scienceBus.acquire()
         if (lcdReady()) {
-            text = text.substr(0, 16)
-            while (text.length < 16) text += " "
-            scienceLCDDriver.lcdShowString(text, 0, line - 1)
+            shown = shown.substr(0, 16)
+            while (shown.length < 16) shown += " "
+            scienceLCDDriver.lcdShowString(shown, 0, line - 1)
             displayOK = true
         }
         scienceBus.release()
@@ -87,15 +88,16 @@ namespace scienceDisplay {
     }
     /** dis-011/012: 128x64 I2C OLED. Line 1..8, up to 21 English letters/numbers. Initializes automatically. */
     //% blockId=science_oled_line block="OLED line $line text $text" group="OLED(SSD1306/SH1106)"
-    //% line.min=1 line.max=8 line.defl=1 text.defl="Hello"
-    export function oledLine(line: number, text: string): void {
+    //% line.min=1 line.max=8 line.defl=1 text.shadow=text text.defl="Hello"
+    export function oledLine(line: number, text: any): void {
         displayOK = false
         if (line < 1 || line > 8 || line != Math.floor(line)) return
+        let shown = scienceInternal.displayText(text)
         scienceBus.acquire()
         if (oledReady()) {
             // Replace one entire page, so writing a shorter value clears the previous digits.
             scienceOLEDDriver.clearTextLine(line - 1)
-            scienceOLEDDriver.oledShowString(0, (line - 1) * 8, text.substr(0, 21), scienceOLEDDriver.OLEDColor.White)
+            scienceOLEDDriver.oledShowString(0, (line - 1) * 8, shown.substr(0, 21), scienceOLEDDriver.OLEDColor.White)
             displayOK = true
         }
         scienceBus.release()

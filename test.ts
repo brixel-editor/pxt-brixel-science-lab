@@ -81,3 +81,5 @@ input.onButtonPressed(Button.AB, function () {
  }
  scienceData.sendUSB([scienceBio.fingerprintID(), scienceBio.fingerprintStatus(), scienceAir.analogDust(ScienceAnalogPin.P1, ScienceDigitalPin.P8)])
 })
+scienceDisplay.lcdLine(2, 12.3456)
+scienceDisplay.oledLine(2, input.acceleration(Dimension.X))
