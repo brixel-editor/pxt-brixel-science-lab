@@ -13,7 +13,7 @@ namespace scienceElectric {
         let index = voltagePins.indexOf(pin)
         if (index >= 0) voltagePerCount[index] = 0
         if (!scienceInternal.finite(voltage) || voltage < 0.1 || voltage > 25) return
-        let raw = voltageRaw(pin)
+        let raw = scienceInternal.calibrationAnalog(pin)
         if (raw < 5 || raw >= 1023) return
         if (index < 0) { index = voltagePins.length; voltagePins.push(pin); voltagePerCount.push(0) }
         voltagePerCount[index] = voltage / raw
@@ -45,7 +45,7 @@ namespace scienceWater {
     export function calibrateTurbidity(pin: ScienceAnalogPin): void {
         let index = turbidityPins.indexOf(pin)
         if (index >= 0) clearWaterCounts[index] = 0
-        let raw = turbidityRaw(pin)
+        let raw = scienceInternal.calibrationAnalog(pin)
         if (raw < 5 || raw >= 1023) return
         if (index < 0) { index = turbidityPins.length; turbidityPins.push(pin); clearWaterCounts.push(0) }
         clearWaterCounts[index] = raw

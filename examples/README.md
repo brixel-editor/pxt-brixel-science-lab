@@ -14,6 +14,11 @@ MakeCode micro:bit 프로젝트에 이 확장을 추가하고, 사용할 파일 
 | analog-dust-usb.ts | A_016/017/018, 분압된 VO=P1·전압 호환 LED 구동=P8, 원시값 한 열 |
 | voltage-usb.ts | A_034 전압 센서 출력→P1, 보정 없이 아날로그 원시값 0~1023 한 열 |
 | turbidity-usb.ts | A_013/A_014 탁도 센서 출력→P1, 보정 없이 아날로그 원시값 0~1023 한 열 |
+| clock-usb.ts | DS1307, A=지정한 시·분·초로 설정·작동 시작, 1초마다 초(0~59) 한 열. 시각은 예제의 12, 0, 0을 변경 |
+| soil-calibration-usb.ts | 토양 수분 P1, A=마른 흙→B=젖은 흙 보정, 상대 수분 % 한 열 |
+| weight-calibration-usb.ts | I2C 무게 모듈, A=빈 접시 영점→B=100g 기준추 보정, 기준추 이하 무게 g 한 열 |
+| tds-calibration-usb.ts | TDS P1 + DS18B20 P8, A=표준용액 보정, 실제 수온으로 보상한 ppm 한 열 |
+| sgp30-compensation-usb.ts | SGP30 + SHT계열 I2C, 온습도 보상 후 eCO₂ ppm 한 열 |
 
 바우어버드는 USB 115200 baud, 구분자 쉼표를 선택합니다. 예열·실패값은 보내지 않습니다. 유효값이 생기기 전 그래프가 비어 있는 것은 정상입니다. BLE로 바꿀 때는 시작 시 `scienceData.startBluetooth()`를 넣고 `sendUSB`/`sendValueUSB`를 대응하는 Bluetooth 함수로 바꿉니다.
 

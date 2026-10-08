@@ -95,9 +95,35 @@ namespace scienceDetection {
         tofWrite(1, 0xE8)
         return tofOK
     }
-    /** VL53L0X I2C distance in mm, address 0x29. Do not share the address with TCS34725. Timeout, invalid range status, or range over 2000mm=-1. */
+    let tofOffset = 0
+    let tofOffsetValid = true
+    /** Place an uncovered sensor perpendicular to a matte target at a ruler-measured 100..500mm. Corrects a small output offset using 16 samples; not ST cover-glass crosstalk calibration. Failed capture disables readings until recalibrated. Lost on restart. */
+    //% blockId=science_tof_calibrate block="laser distance calibrate reference $mm mm" group="Laser distance(VL53L0X)"
+    //% mm.defl=100 mm.min=100 mm.max=500
+    export function calibrateLaserDistance(mm: number): void {
+        tofOffsetValid = false
+        if (!scienceInternal.finite(mm) || mm < 100 || mm > 500) return
+        let sum = 0, low = 2000, high = 0
+        for (let i = 0; i < 16; i++) {
+            tofAt = -1000
+            let value = laserDistanceRaw()
+            if (value < 0) return
+            sum += value; low = Math.min(low, value); high = Math.max(high, value)
+            basic.pause(50)
+        }
+        let offset = mm - sum / 16
+        if (high - low <= 20 && Math.abs(offset) <= 50) { tofOffset = offset; tofOffsetValid = true }
+    }
+    /** VL53L0X I2C distance in mm, address 0x29, with optional output offset correction. Do not share the address with TCS34725. Timeout, invalid range status, failed calibration or range over 2000mm=-1. */
     //% blockId=science_tof block="laser distance sensor (mm)" group="Laser distance(VL53L0X)"
     export function laserDistance(): number {
+        if (!tofOffsetValid) return -1
+        let raw = laserDistanceRaw()
+        if (raw < 0) return -1
+        let result = raw + tofOffset
+        return result >= 0 && result <= 2000 ? result : -1
+    }
+    function laserDistanceRaw(): number {
         scienceBus.acquire()
         if (control.millis() - tofAt >= 50) {
             tofOK = true

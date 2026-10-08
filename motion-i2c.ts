@@ -12,6 +12,12 @@ enum ScienceMotionValue {
     //% block="angular velocity (°/s)"
     Gyro = 1
 }
+enum ScienceGravityReference {
+    //% block="+1 g (axis up)"
+    Positive = 0,
+    //% block="-1 g (axis down)"
+    Negative = 1
+}
 enum ScienceColorChannel {
     //% block="red"
     Red = 0,
@@ -27,6 +33,10 @@ namespace scienceMotion {
     let mpuAt = -1000
     let mpuFrame: Buffer = null
     let gyroOffsets: number[] = [0, 0, 0]
+    let gyroCalibrationFailed = false
+    let accelPositive: number[] = [0, 0, 0]
+    let accelNegative: number[] = [0, 0, 0]
+    let accelCalibrated: boolean[] = [false, false, false]
     function mpuInit(): boolean {
         let id = scienceBus.register(0x68, 0x75, 1)
         if (!id || id[0] != 0x68) return false
@@ -38,7 +48,7 @@ namespace scienceMotion {
     /** i2c-007: I2C MPU6050, ±2 g / ±500 °/s. Same-address RTC cannot share the bus. Failure=-999. */
     //% blockId=science_mpu6050 block="MPU6050 $value axis $axis" group="Motion(MPU6050)"
     export function mpu6050(value: ScienceMotionValue, axis: ScienceAxis): number {
-        if (axis < 0 || axis > 2) return -999
+        if (axis < 0 || axis > 2 || axis != Math.floor(axis) || (value != 0 && value != 1)) return -999
         scienceBus.acquire()
         if (control.millis() - mpuAt >= 20) {
             if (!mpuReady) mpuReady = mpuInit()
@@ -48,8 +58,13 @@ namespace scienceMotion {
         }
         let result = -999
         if (mpuFrame) {
-            if (value == ScienceMotionValue.Acceleration) result = scienceBus.signedBE(mpuFrame, axis * 2) / 16384
-            else result = scienceBus.signedBE(mpuFrame, 8 + axis * 2) / 65.5 - gyroOffsets[axis]
+            if (value == ScienceMotionValue.Acceleration) {
+                result = scienceBus.signedBE(mpuFrame, axis * 2) / 16384
+                if (accelCalibrated[axis]) {
+                    if (accelPositive[axis] <= 0 || accelNegative[axis] >= 0) result = -999
+                    else result = (result - (accelPositive[axis] + accelNegative[axis]) / 2) * 2 / (accelPositive[axis] - accelNegative[axis])
+                }
+            } else if (!gyroCalibrationFailed) result = scienceBus.signedBE(mpuFrame, 8 + axis * 2) / 65.5 - gyroOffsets[axis]
         }
         scienceBus.release()
         return result
@@ -58,18 +73,54 @@ namespace scienceMotion {
     //% blockId=science_gyro_zero block="zero gyro while still" group="Motion(MPU6050)"
     export function zeroGyro(): void {
         scienceBus.acquire()
+        gyroCalibrationFailed = true
         if (!mpuReady) mpuReady = mpuInit()
         let sum = [0, 0, 0]
+        let low = [1000, 1000, 1000], high = [-1000, -1000, -1000]
         let ok = mpuReady
         for (let i = 0; i < 50 && ok; i++) {
             let data = scienceBus.register(0x68, 0x3B, 14)
             if (!data) { ok = false; break }
-            for (let axis = 0; axis < 3; axis++) sum[axis] += scienceBus.signedBE(data, 8 + axis * 2) / 65.5
+            for (let axis = 0; axis < 3; axis++) {
+                let speed = scienceBus.signedBE(data, 8 + axis * 2) / 65.5
+                sum[axis] += speed; low[axis] = Math.min(low[axis], speed); high[axis] = Math.max(high[axis], speed)
+            }
             basic.pause(20)
         }
-        if (ok) for (let axis = 0; axis < 3; axis++) gyroOffsets[axis] = sum[axis] / 50
+        for (let axis = 0; axis < 3; axis++) if (high[axis] - low[axis] > 5) ok = false
+        if (ok) {
+            for (let axis = 0; axis < 3; axis++) gyroOffsets[axis] = sum[axis] / 50
+            gyroCalibrationFailed = false
+        }
         mpuFrame = null
         mpuAt = -1000
+        scienceBus.release()
+    }
+    /** For each axis, point its positive arrow straight up (+1g), then straight down (-1g), keeping still for 1s each. Six captures correct axis offset/scale, not misalignment. Gravity is retained. Partial/failed calibration=-999 on that axis. Lost on restart. */
+    //% blockId=science_accel_calibrate block="accelerometer axis $axis calibrate $reference" group="Motion(MPU6050)"
+    export function calibrateAcceleration(axis: ScienceAxis, reference: ScienceGravityReference): void {
+        if (axis < 0 || axis > 2 || axis != Math.floor(axis)) return
+        scienceBus.acquire()
+        accelCalibrated[axis] = true
+        if (reference == 0 || reference != 1) { accelPositive[axis] = 0; accelNegative[axis] = 0 }
+        else accelNegative[axis] = 0
+        let ok = reference == 0 || reference == 1
+        if (ok && !mpuReady) mpuReady = mpuInit()
+        ok = ok && mpuReady
+        let sum = 0, low = 3, high = -3
+        for (let i = 0; i < 50 && ok; i++) {
+            let data = scienceBus.register(0x68, 0x3B, 14)
+            if (!data) { ok = false; break }
+            let g = scienceBus.signedBE(data, axis * 2) / 16384
+            if ((reference == 0 && (g < 0.7 || g > 1.3)) || (reference == 1 && (g < -1.3 || g > -0.7))) { ok = false; break }
+            sum += g; low = Math.min(low, g); high = Math.max(high, g)
+            basic.pause(20)
+        }
+        if (ok && high - low <= 0.05) {
+            if (reference == 0) accelPositive[axis] = sum / 50
+            else accelNegative[axis] = sum / 50
+        }
+        mpuFrame = null; mpuAt = -1000
         scienceBus.release()
     }
     /** i2c-010 MCU/HX711 module, I2C address 0x63; connect its load-cell plate. Raw module reading, unit must be verified. Failure=-1. */
@@ -87,6 +138,35 @@ namespace scienceMotion {
     export function joystick(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
 }
 namespace scienceDetection {
+    let ultrasonicTemperature = 20
+    let ultrasonicPairs: number[] = []
+    let ultrasonicOffsets: number[] = []
+    /** Ambient air temperature for sound-speed compensation (0..50 C). Default 20 C. Not suitable for water. Invalid input disables distance until a valid temperature is supplied. Lost on restart. */
+    //% blockId=science_ultrasonic_temperature block="ultrasonic ambient temperature $temperature °C" group="Ultrasonic distance"
+    //% temperature.defl=20 temperature.min=0 temperature.max=50
+    export function setUltrasonicTemperature(temperature: number): void {
+        ultrasonicTemperature = scienceInternal.finite(temperature) && temperature >= 0 && temperature <= 50 ? temperature : -999
+    }
+    /** Set temperature first, then measure a flat perpendicular target with a ruler (10..300cm). Captures 8 echoes to correct a small mounting offset (within 10cm), not reflectivity or sound speed. Lost on restart; failed capture makes this pair unavailable until recalibrated. */
+    //% blockId=science_ultrasonic_calibrate block="ultrasonic trigger $trigger echo $echo calibrate distance $cm cm" group="Ultrasonic distance"
+    //% trigger.defl=ScienceDigitalPin.P13 echo.defl=ScienceDigitalPin.P14 cm.defl=30 cm.min=10 cm.max=300
+    export function calibrateUltrasonic(trigger: ScienceDigitalPin, echo: ScienceDigitalPin, cm: number): void {
+        if (!scienceInternal.validDigital(trigger) || !scienceInternal.validDigital(echo) || trigger == echo) return
+        let key = trigger * 1000 + echo
+        let index = ultrasonicPairs.indexOf(key)
+        if (index < 0) { index = ultrasonicPairs.length; ultrasonicPairs.push(key); ultrasonicOffsets.push(-999) }
+        ultrasonicOffsets[index] = -999
+        if (!scienceInternal.finite(cm) || cm < 10 || cm > 300) return
+        let sum = 0, low = 1000, high = 0
+        for (let i = 0; i < 8; i++) {
+            let value = ultrasonicRaw(trigger, echo)
+            if (value < 0) return
+            sum += value; low = Math.min(low, value); high = Math.max(high, value)
+            basic.pause(60)
+        }
+        let offset = cm - sum / 8
+        if (high - low <= 2 && Math.abs(offset) <= 10) ultrasonicOffsets[index] = offset
+    }
     let colorReady = false
     let colorAt = -1000
     let colorFrame: Buffer = null
@@ -123,7 +203,16 @@ namespace scienceDetection {
     //% blockId=science_ultrasonic block="ultrasonic trigger $trigger echo $echo distance (cm)" group="Ultrasonic distance"
     //% trigger.defl=ScienceDigitalPin.P13 echo.defl=ScienceDigitalPin.P14
     export function ultrasonic(trigger: ScienceDigitalPin, echo: ScienceDigitalPin): number {
+        let raw = ultrasonicRaw(trigger, echo)
+        if (raw < 0) return -1
+        let index = ultrasonicPairs.indexOf(trigger * 1000 + echo)
+        let offset = index < 0 ? 0 : ultrasonicOffsets[index]
+        let value = raw + offset
+        return offset != -999 && value >= 0 ? Math.round(value * 100) / 100 : -1
+    }
+    function ultrasonicRaw(trigger: ScienceDigitalPin, echo: ScienceDigitalPin): number {
         if (!scienceInternal.validDigital(trigger) || !scienceInternal.validDigital(echo) || trigger == echo) return -1
+        if (ultrasonicTemperature == -999) return -1
         scienceInternal.prepare(trigger)
         scienceInternal.prepare(echo)
         let t = <DigitalPin><number>trigger
@@ -135,6 +224,6 @@ namespace scienceDetection {
         control.waitMicros(10)
         pins.digitalWritePin(t, 0)
         let duration = pins.pulseIn(e, PulseValue.High, 30000)
-        return duration > 0 ? Math.round(duration / 58.31 * 100) / 100 : -1
+        return duration > 0 ? duration * (331 + 0.6 * ultrasonicTemperature) / 20000 : -1
     }
 }

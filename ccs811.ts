@@ -6,6 +6,19 @@ namespace scienceAir {
     let ccsPollAt = -1000
     let ccsCO2 = -1
     let ccsVOC = -1
+    let ccsEnvironment: number[] = []
+    let ccsEnvironmentDirty = false
+    let ccsEnvironmentInvalid = false
+    /** Supply measured ambient temperature and humidity for CCS811 compensation, ideally every 10s. Does not skip burn-in or calibrate eCO2 to real CO2. Invalid input hides readings until valid input is supplied. Lost on restart. */
+    //% blockId=science_ccs_environment block="CCS811 compensate temperature $temperature °C humidity $humidity percent" group="eCO2(CCS811)"
+    //% temperature.defl=25 temperature.min=-25 temperature.max=50 humidity.defl=50 humidity.min=0 humidity.max=100
+    export function compensateCCS811(temperature: number, humidity: number): void {
+        ccsCO2 = -1; ccsVOC = -1; ccsAt = -10000
+        ccsEnvironmentInvalid = true
+        if (!scienceInternal.finite(temperature) || !scienceInternal.finite(humidity) || temperature < -25 || temperature > 50 || humidity < 0 || humidity > 100) return
+        ccsEnvironment = [0x05, Math.round(humidity * 2), 0, Math.round((temperature + 25) * 2), 0]
+        ccsEnvironmentDirty = true; ccsEnvironmentInvalid = false
+    }
     function ccsInvalidate(): void { ccsCO2 = -1; ccsVOC = -1; ccsAt = -10000; ccsAddress = 0 }
     function ccsInit(): boolean {
         for (let addr = 0x5A; addr <= 0x5B; addr++) {
@@ -21,6 +34,7 @@ namespace scienceAir {
                 if (!status || !(status[0] & 0x80) || (status[0] & 1)) continue
             }
             if (!scienceBus.write(addr, [0x01, 0x10])) continue // IAQ drive mode 1, 1 second
+            ccsEnvironmentDirty = ccsEnvironment.length > 0
             ccsAddress = addr
             ccsWarmAt = control.millis() + 1200000 // manufacturer run-in: 20 minutes after start
             return true
@@ -31,10 +45,14 @@ namespace scienceAir {
     //% blockId=science_ccs811 block="CCS811 air quality $value" group="eCO2(CCS811)"
     export function ccs811(value: ScienceAirValue): number {
         if (value != ScienceAirValue.ECO2 && value != ScienceAirValue.TVOC) return -1
+        if (ccsEnvironmentInvalid) return -1
         scienceBus.acquire()
         if (control.millis() - ccsPollAt >= 100) {
             if (ccsAddress != 0 || ccsInit()) {
-                let status = scienceBus.register(ccsAddress, 0, 1)
+                let environment = ccsEnvironment
+                let environmentOK = !ccsEnvironmentDirty || scienceBus.write(ccsAddress, environment)
+                if (environmentOK) ccsEnvironmentDirty = ccsEnvironment != environment
+                let status = environmentOK ? scienceBus.register(ccsAddress, 0, 1) : null
                 if (!status || !(status[0] & 0x80) || (status[0] & 1)) {
                     if (status && (status[0] & 1)) scienceBus.register(ccsAddress, 0xE0, 1)
                     ccsInvalidate()
@@ -52,7 +70,7 @@ namespace scienceAir {
             ccsPollAt = control.millis()
         }
         let result = -1
-        if (ccsAddress != 0 && control.millis() >= ccsWarmAt && control.millis() - ccsAt <= 2500)
+        if (!ccsEnvironmentInvalid && !ccsEnvironmentDirty && ccsAddress != 0 && control.millis() >= ccsWarmAt && control.millis() - ccsAt <= 2500)
             result = value == ScienceAirValue.ECO2 ? ccsCO2 : ccsVOC
         scienceBus.release()
         return result

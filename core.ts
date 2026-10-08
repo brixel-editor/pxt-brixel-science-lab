@@ -61,6 +61,17 @@ namespace scienceInternal {
     export function finite(value: number): boolean {
         return value == value && value - value == 0
     }
+    // A short stable capture for calibration, not an accuracy specification or a long settling wait.
+    export function calibrationAnalog(pin: ScienceAnalogPin): number {
+        let sum = 0, low = 1023, high = 0
+        for (let i = 0; i < 16; i++) {
+            let raw = analog(pin)
+            if (!finite(raw) || raw < 0 || raw > 1023) return -1
+            sum += raw; low = Math.min(low, raw); high = Math.max(high, raw)
+            basic.pause(5)
+        }
+        return high - low <= 20 ? sum / 16 : -1
+    }
 }
 
 

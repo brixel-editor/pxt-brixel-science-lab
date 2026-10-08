@@ -1,6 +1,6 @@
 {
   "name": "brixel-science-lab",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "description": "micro:bit V2 science sensor blocks and Bowerbird USB/BLE data collection",
   "license": "MIT",
   "dependencies": {
@@ -19,6 +19,7 @@
     "climate.ts",
     "motion-i2c.ts",
     "analog-science.ts",
+    "calibration.ts",
     "digital-sensors.ts",
     "water-driver.ts",
     "lcd-driver.ts",

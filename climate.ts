@@ -54,6 +54,13 @@ namespace scienceWeather {
     let bmpAt = -1000
     let bmpTemp = -127
     let bmpPressure = -1
+    let bmpSeaLevel = 1013.25
+    /** Set the local sea-level pressure (QNH), not unadjusted station pressure. Affects altitude only. Default 1013.25 hPa is a standard-atmosphere estimate; setting is lost on restart. */
+    //% blockId=science_bmp_sealevel block="BMP280 altitude sea-level pressure $hpa hPa" group="Air pressure(BMP280)"
+    //% hpa.defl=1013.25 hpa.min=850 hpa.max=1100
+    export function setSeaLevelPressure(hpa: number): void {
+        bmpSeaLevel = scienceInternal.finite(hpa) && hpa >= 850 && hpa <= 1100 ? hpa : 0
+    }
     // Bosch floating-point compensation, preserved from the BRIXEL BMP280 driver.
     function bmpInit(): boolean {
         for (let address = 0x76; address <= 0x77; address++) {
@@ -95,7 +102,7 @@ namespace scienceWeather {
             temperature < -40 || temperature > 85 || pressure < 300 || pressure > 1100) return [-127, -1]
         return [temperature, pressure]
     }
-    /** i2c-006: connect BMP280 to I2C. Altitude assumes 1013.25 hPa sea-level pressure. Failures: -127 °C, -1 hPa, -9999 m. */
+    /** i2c-006: connect BMP280 to I2C. Altitude uses your sea-level pressure setting, default 1013.25 hPa. Weather changes affect altitude. Failures: -127 °C, -1 hPa, -9999 m. */
     //% blockId=science_bmp280 block="BMP280 $value" group="Air pressure(BMP280)"
     export function bmp280(value: SciencePressureValue): number {
         scienceBus.acquire()
@@ -118,7 +125,7 @@ namespace scienceWeather {
         }
         let result = bmpPressure
         if (value == SciencePressureValue.Temperature) result = bmpTemp
-        if (value == SciencePressureValue.Altitude) result = bmpPressure < 0 ? -9999 : 44330 * (1 - Math.pow(bmpPressure / 1013.25, 0.1903))
+        if (value == SciencePressureValue.Altitude) result = bmpPressure < 0 || bmpSeaLevel <= 0 ? -9999 : 44330 * (1 - Math.pow(bmpPressure / bmpSeaLevel, 0.1903))
         scienceBus.release()
         return result
     }

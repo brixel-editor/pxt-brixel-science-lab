@@ -9,7 +9,7 @@ The local BRIXEL extension declares the MIT license in `_sources/brixel-final-de
 | water-driver.ts | DS18B20 section of 03_sensors.ts, open-drain release, family filtering, three-probe limit, stricter scratchpad validation |
 | climate.ts | BRIXEL 04_adv_sensors.ts formulas; command/CRC/read error handling rebuilt; GXHT30 manufacturer protocol checked |
 | motion-i2c.ts | BRIXEL MPU6050/TCS34725 and documented 0x63 weight protocol; sensor ID, transfer result and cache handling rebuilt |
-| analog-science.ts | BRIXEL NTC/TDS calculation paths with 3.3V ADC scale; explicit two-point/reference calibration instead of unverified module gains |
+| analog-science.ts, calibration.ts | BRIXEL NTC/TDS conversion constants with 3.3V ADC scale; original reference capture, NTC R25 adjustment, pH7+4/10, PT100/current, TDS gain and relative-soil/software-weight calibration. TDS now temperature-compensates after the voltage polynomial |
 | digital-sensors.ts | DHT pulse protocol and DS18B20 wrapper; bounded waits, model validation, per-pin DHT cache |
 | air.ts | SGP30 IAQ commands from original driver, CRC/feature check, mandatory periodic measurement and warmup added |
 | native.cpp | Original small adapter to PXT/CODAL APIs, read status preserved and hardware NeoPixel selected |
@@ -42,7 +42,7 @@ Workbook evidence and contradictions are recorded in `_research/06_inventory_rec
 | particulate.ts | Plantower PMS3003/7003 manufacturer frames, length 20/28, atmospheric concentration, checksum; reserved bytes left uninterpreted |
 | co2.ts | Existing BRIXEL MH-Z19 code + Winsen 0x86 read-frame reference; bounded response parser, 60s MH-Z19D warmup; no calibration commands |
 | external-adc.ts (retired in 0.5.0) | Historical ADS1115 path; removed after the user confirmed this module is not available. Current analog pin implementation is described below |
-| encoder.ts, clock.ts | Original quadrature state machine and DS1307 BCD read/validation; no external code copied |
+| encoder.ts, clock.ts | Original quadrature state machine and DS1307 BCD read/validation/time setting; no external code copied |
 
 Pinned vendor/runtime snapshots (all hashes verified by tools/check.js):
 
@@ -64,7 +64,16 @@ Additional primary references:
 - [AMS CCS811 datasheet, manufacturer-authored copy](https://cdn.sparkfun.com/assets/learn_tutorials/1/4/3/CCS811_Datasheet-DS000459.pdf): 20-minute conditioning; first-use burn-in is separate and firmware-dependent.
 - [TI ADS1115](https://www.ti.com/lit/ds/symlink/ads1115.pdf): historical reference for the driver removed in 0.5.0. No ADS1115 is required or used by the current extension.
 - [Aosong AZDM01 V1.1, manufacturer-authored copy](https://xonstorage.blob.core.windows.net/pdf/aosong_azdm01_apr22_xonlink.pdf): turbidity factor is the ratio of measured to clear-water voltage. Module current/PWM drive is not established, so no NTU conversion is claimed.
-- [Analog Devices DS1307](https://www.analog.com/media/en/technical-documentation/data-sheets/DS1307.pdf): BCD registers, CH flag, 12/24h interpretation.
+- [Analog Devices DS1307](https://www.analog.com/media/en/technical-documentation/data-sheets/DS1307.pdf), page 8: BCD registers, CH flag, 12/24h interpretation and writing the time registers within one second. setClock clears CH and writes 24h time in one transfer. A valid calendar is not rewritten; an invalid calendar is initialized to 2000-01-01, weekday 7 (Sunday=1). Control register and RAM are untouched.
+
+## Calibration additions (v0.6.0)
+
+- [DFRobot GravityTDS reference](https://github.com/DFRobot/GravityTDS/blob/master/GravityTDS.cpp): published voltage polynomial, conductivity temperature coefficient 0.02/C, TDS factor 0.5 and 707ppm standard example. No library code was copied; the existing BRIXEL formula and original per-pin calibration code use these numerical relationships. The actual module must be verified with standards.
+- [Sensirion SGP30 datasheet](https://sensirion.com/media/documents/984E0DD5/61644B8B/Sensirion_Gas_Sensors_Datasheet_SGP30.pdf), pages 10-11: absolute humidity formula, 8.8 fixed-point word with CRC, command 0x2061 and maximum 10ms duration. Original humidity setter integrated with the existing worker. No automatic baseline persistence/restore is claimed.
+- CCS811 ENV_DATA register 0x05 is encoded in 0.5-unit steps with a +25C temperature offset, checked against the already pinned SparkFun driver and AMS datasheet above. Negative temperatures are validated before encoding.
+- [TI ultrasonic application report](https://www.ti.com/lit/an/slaa732a/slaa732a.pdf): air sound speed approximately 331+0.6T m/s; round-trip distance uses half the flight time. The additional ruler-based offset is original host-side processing.
+- [ST VL53L0X datasheet](https://www.st.com/resource/en/datasheet/vl53l0x.pdf): offset and cover-glass crosstalk are different corrections. This release adds only a host output offset for an uncovered sensor; it is not an implementation of ST's cover-glass calibration procedure.
+- MPU6050 +1g/-1g per-axis and weight zero/reference mass use elementary two-point linear calibration. Stability thresholds are engineering guards, not manufacturer accuracy guarantees. No unverified module opcode, CO2 calibration command, EEPROM write or flash persistence was added.
 
 Adaptation licenses are distributed in THIRD_PARTY_NOTICES.md. Snapshot files are excluded from the extension package; this provenance file and the license notices are included.
 
