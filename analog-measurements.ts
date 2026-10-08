@@ -52,7 +52,7 @@ namespace scienceWater {
     }
 
     /** Relative transmission from the analog signal: clear water=100%, lower means cloudier. Not NTU. Raw zero is valid 0%. Missing calibration, invalid pin, ADC saturation or over 120%=-1. */
-    //% blockId=science_turbidity_pin block="turbidity sensor pin $pin transmission (%)" group="Turbidity(AZDM01)" weight=80
+    //% blockId=science_turbidity_pin block="turbidity sensor pin $pin transmission (percent)" group="Turbidity(AZDM01)" weight=80
     //% pin.defl=ScienceAnalogPin.P1
     export function turbidity(pin: ScienceAnalogPin): number {
         let index = turbidityPins.indexOf(pin)
