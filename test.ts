@@ -54,6 +54,7 @@ input.onButtonPressed(Button.A, function () {
     scienceDisplay.oledClear()
     scienceDisplay.pixels(ScienceDigitalPin.P9, 8, SciencePixelColor.Red)
     scienceDisplay.pixelsColor(ScienceDigitalPin.P9, 8, scienceDisplay.rgb(0, 255, 128), 128)
+    scienceDisplay.pixelsBrightness(input.lightLevel())
     scienceData.sendUSB(measurements)
 })
 

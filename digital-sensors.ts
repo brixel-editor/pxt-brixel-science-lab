@@ -11,22 +11,15 @@ namespace scienceWeather {
         at: number
         temperature: number
         humidity: number
+        failures: number
         constructor(pin: number, model: number) {
             this.pin = pin; this.model = model; this.at = -2000
-            this.temperature = -127; this.humidity = -1
+            this.temperature = -127; this.humidity = -1; this.failures = 0
         }
     }
     let dhtCache: DHTCache[] = []
     let dhtBusy = false
-    function waitLevel(pin: DigitalPin, level: number): boolean {
-        let start = control.micros()
-        let guard = 0
-        while (pins.digitalReadPin(pin) == level) {
-            if (++guard > 20000 || ((control.micros() - start) >>> 0) > 300) return false
-        }
-        return true
-    }
-    /** d-001/002: connect G/V/S to a 3.3V port. Each sensor is sampled at most once per 2 seconds. Temperature failure=-127, humidity=-1. */
+    /** d-001/002: connect G/V/S to a 3.3V port. Each sensor is sampled at most once per 2 seconds. A single bad frame keeps the last good value; after 3 failed reads in a row (or before the first good read) temperature=-127, humidity=-1. */
     //% blockId=science_dht block="$model pin $pin $value" group="Temperature and humidity(DHT11/22)" pin.defl=ScienceDigitalPin.P8
     export function dht(model: ScienceDHTModel, pin: ScienceDigitalPin, value: ScienceClimateValue): number {
         let failure = value == ScienceClimateValue.Temperature ? -127 : -1
@@ -36,37 +29,28 @@ namespace scienceWeather {
         let cache: DHTCache = null
         for (let i = 0; i < dhtCache.length; i++) if (dhtCache[i].pin == pin) cache = dhtCache[i]
         if (!cache) { cache = new DHTCache(pin, model); dhtCache.push(cache) }
-        if (cache.model != model) { cache.model = model; cache.at = -2000; cache.temperature = -127; cache.humidity = -1 }
+        if (cache.model != model) { cache.model = model; cache.at = -2000; cache.temperature = -127; cache.humidity = -1; cache.failures = 0 }
         if (control.millis() - cache.at >= 2000) {
-            cache.temperature = -127; cache.humidity = -1
             scienceInternal.prepare(pin)
             let p = <DigitalPin><number>pin
             pins.setPull(p, PinPullMode.PullUp)
             pins.digitalReadPin(p)
             basic.pause(250)
-            pins.digitalWritePin(p, 0)
-            basic.pause(20)
-            pins.digitalReadPin(p)
-            // Consume response HIGH->LOW->HIGH->LOW. No global interrupt masking (BLE remains enabled).
-            let ok = waitLevel(p, 1) && waitLevel(p, 0) && waitLevel(p, 1)
-            let bytes = [0, 0, 0, 0, 0]
-            for (let bit = 0; ok && bit < 40; bit++) {
-                let low = control.micros()
-                if (!waitLevel(p, 0)) { ok = false; break }
-                let high = control.micros()
-                if (!waitLevel(p, 1)) { ok = false; break }
-                let end = control.micros()
-                let index = Math.idiv(bit, 8)
-                bytes[index] = bytes[index] << 1 | (((end - high) >>> 0) > ((high - low) >>> 0) ? 1 : 0)
-            }
-            if (ok && ((bytes[0] + bytes[1] + bytes[2] + bytes[3]) & 255) == bytes[4]) {
+            // Bit timing is measured natively. No global interrupt masking (BLE remains enabled), so a
+            // frame can still be corrupted now and then; the checksum rejects it and the last value is kept.
+            let bytes = scienceNative.readDHT(pin)
+            let good = false
+            if (bytes.length == 5 && ((bytes[0] + bytes[1] + bytes[2] + bytes[3]) & 255) == bytes[4]) {
                 let humidity = model == ScienceDHTModel.DHT11 ? bytes[0] + bytes[1] / 10 : (bytes[0] * 256 + bytes[1]) / 10
                 let temp = model == ScienceDHTModel.DHT11 ? bytes[2] + (bytes[3] & 127) / 10 : ((bytes[2] & 127) * 256 + bytes[3]) / 10
                 if (model == ScienceDHTModel.DHT22 && (bytes[2] & 128)) temp = -temp
                 if (model == ScienceDHTModel.DHT11 && (bytes[3] & 128)) temp = -temp
-                if (humidity >= 0 && humidity <= 100 && temp >= -40 && temp <= 80) { cache.temperature = temp; cache.humidity = humidity }
+                if (humidity >= 0 && humidity <= 100 && temp >= -40 && temp <= 80) { cache.temperature = temp; cache.humidity = humidity; good = true }
             }
-            cache.at = control.millis()
+            if (good) cache.failures = 0
+            else if (++cache.failures >= 3) { cache.temperature = -127; cache.humidity = -1 }
+            // After a bad frame try again in 1s (DHT11 minimum) instead of waiting the full 2s.
+            cache.at = good ? control.millis() : control.millis() - 1000
         }
         let result = value == ScienceClimateValue.Temperature ? cache.temperature : cache.humidity
         dhtBusy = false

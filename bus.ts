@@ -10,6 +10,8 @@ namespace scienceNative {
     export function writeSensorUART(data: Buffer): boolean { return false }
     //% shim=scienceNative::readI2C
     export function readI2C(address: number, size: number): Buffer { return pins.createBuffer(size + 1) }
+    //% shim=scienceNative::readDHT
+    export function readDHT(pin: number): Buffer { return pins.createBuffer(0) }
     //% shim=scienceNative::echoPulse
     export function echoPulse(trigger: number, echo: number, timeout: number): number { return 0 }
     //% shim=scienceNative::showPixels

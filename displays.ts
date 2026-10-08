@@ -27,6 +27,10 @@ namespace scienceDisplay {
     let oledAddress = 0
     let oledType = ScienceOLEDType.SSD1306
     let pixelBusy = false
+    let pixelPin = -1
+    let pixelCount = 0
+    let pixelColor = 0
+    let pixelLevel = 32
     let displayOK = false
     function lcdReady(): boolean {
         if (lcdAddress != 0 && scienceBus.read(lcdAddress, 1)) return true
@@ -133,6 +137,14 @@ namespace scienceDisplay {
         let b = Math.max(0, Math.min(255, Math.round(blue)))
         return (r << 16) | (g << 8) | b
     }
+    /** Change the brightness (0..255) of the NeoPixels last lit by the NeoPixel color block and redraw them. Plug a variable or sensor value in, e.g. light level. Running the color block again uses its own brightness. */
+    //% blockId=science_pixels_brightness block="NeoPixel brightness $brightness" group="NeoPixel(WS2812)"
+    //% brightness.min=0 brightness.max=255 brightness.defl=32
+    export function pixelsBrightness(brightness: number): void {
+        if (!scienceInternal.finite(brightness)) return
+        pixelLevel = Math.max(0, Math.min(255, Math.round(brightness)))
+        if (pixelPin >= 0) showColor(pixelPin, pixelCount, pixelColor, pixelLevel)
+    }
     /** Older fixed-color block kept so saved projects still open; brightness 32/255. */
     //% blockId=science_pixels block="NeoPixel pin $pin count $count color $color" group="NeoPixel(WS2812)"
     //% pin.defl=ScienceDigitalPin.P9 count.min=1 count.max=64 count.defl=8 deprecated=true
@@ -144,6 +156,7 @@ namespace scienceDisplay {
         if (!scienceInternal.validDigital(pin) || !scienceInternal.finite(count) || count < 1 || count > 64) return
         if (!scienceInternal.finite(color) || !scienceInternal.finite(brightness)) return
         brightness = Math.max(0, Math.min(255, Math.round(brightness)))
+        pixelPin = pin; pixelCount = count; pixelColor = color; pixelLevel = brightness
         while (pixelBusy) basic.pause(1)
         pixelBusy = true
         scienceInternal.prepare(pin)

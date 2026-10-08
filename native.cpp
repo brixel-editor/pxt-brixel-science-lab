@@ -18,6 +18,39 @@ static bool dustWait(volatile uint32_t &event, uint32_t timeout) {
     return true;
 }
 #endif
+#if MICROBIT_CODAL
+static bool dhtWait(codal::Pin *p, int level, uint32_t limit) {
+    uint64_t start = system_timer_current_time_us();
+    while (p->getDigitalValue() == level) if (system_timer_current_time_us() - start > limit) return false;
+    return true;
+}
+#endif
+// DHT11/DHT22 frame: 5 bytes (checksum checked in TypeScript), or an empty buffer on timing failure.
+// Bit timing (26..70us) is measured in C++; the TypeScript polling loop was too slow/jittery and failed now and then.
+//%
+Buffer readDHT(int pin) {
+#if MICROBIT_CODAL
+    auto p = pxt::getPin(pin);
+    if (!p) return mkBuffer(NULL, 0);
+    p->setDigitalValue(0);
+    uBit.sleep(20);                       // start signal >= 18ms
+    p->setPull(codal::PullMode::Up);
+    p->getDigitalValue();                 // release the line
+    uint8_t data[5] = {0, 0, 0, 0, 0};
+    // Response: sensor pulls LOW ~80us, HIGH ~80us, then the first bit's LOW.
+    if (!dhtWait(p, 1, 200) || !dhtWait(p, 0, 200) || !dhtWait(p, 1, 200)) return mkBuffer(NULL, 0);
+    for (int bit = 0; bit < 40; bit++) {
+        if (!dhtWait(p, 0, 200)) return mkBuffer(NULL, 0);   // ~50us LOW
+        uint64_t high = system_timer_current_time_us();
+        if (!dhtWait(p, 1, 200)) return mkBuffer(NULL, 0);   // 26-28us = 0, ~70us = 1
+        uint32_t width = (uint32_t)(system_timer_current_time_us() - high);
+        data[bit >> 3] = (data[bit >> 3] << 1) | (width > 45 ? 1 : 0);
+    }
+    return mkBuffer(data, 5);
+#else
+    return mkBuffer(NULL, 0);
+#endif
+}
 // HC-SR04 echo width in microseconds by polling the pin, like Arduino pulseIn.
 // CODAL pins.pulseIn uses edge events plus a timer wakeup (getPulseUs); on V2 repeated
 // calls returned values for a while and then only timeouts. 0 = no echo, -1 = bad pins.
