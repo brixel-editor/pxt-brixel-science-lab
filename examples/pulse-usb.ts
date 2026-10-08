@@ -1,4 +1,4 @@
-// MAX30105/MAX30102 on I2C. Raw red/IR optical counts; no heart-rate or SpO2 calculation.
+// MAX30102 on I2C. Raw red/IR optical counts; no heart-rate or SpO2 calculation.
 basic.forever(function () {
     let red = scienceBio.pulseRaw(SciencePulseChannel.Red)
     let infrared = scienceBio.pulseRaw(SciencePulseChannel.Infrared)
