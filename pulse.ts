@@ -5,7 +5,7 @@ enum SciencePulseChannel {
     Infrared = 1
 }
 //% color=#BA5B86 weight=69 block="Body signals"
-//% groups='["Pulse waveform(MAX30102)"]'
+//% groups='["Heart rate sensor(MAX30105)"]'
 namespace scienceBio {
     let pulseReady = false
     let pulseAt = -1000
@@ -23,7 +23,7 @@ namespace scienceBio {
             if (control.millis() - start >= 100) return false
             basic.pause(2)
         }
-        // MAX30102 red+IR, 100 SPS, 18-bit/411us, 4096nA, 6.4mA LEDs; no FIFO averaging/rollover.
+        // MAX30105/MAX30102 mode 0x03: red+IR, 100 SPS, 18-bit/411us, 4096nA, 6.4mA LEDs; no FIFO averaging/rollover.
         let settings = [0x02, 0, 0x03, 0, 0x04, 0, 0x05, 0, 0x06, 0, 0x08, 0x0F,
             0x0A, 0x27, 0x0C, 0x1F, 0x0D, 0x1F, 0x09, 0x03]
         for (let i = 0; i < settings.length; i += 2)
@@ -34,8 +34,8 @@ namespace scienceBio {
         return true
     }
     function pulseFail(): void { pulseRed = -1; pulseIR = -1; pulseAt = -1000; pulseReady = false }
-    /** MAX30102 I2C optical pulse waveform, raw 18-bit counts. Read every 20..100ms. Not heart rate or SpO2. Missing/stale data or FIFO overflow=-1. */
-    //% blockId=science_pulse_raw block="pulse waveform sensor $channel raw value" group="Pulse waveform(MAX30102)"
+    /** MAX30105 I2C optical pulse waveform; compatible with MAX30102 red/IR mode. Raw 18-bit counts, read every 20..100ms. Not heart rate or SpO2. Missing/stale data or FIFO overflow=-1. */
+    //% blockId=science_pulse_raw block="heart rate sensor $channel pulse raw value" group="Heart rate sensor(MAX30105)"
     export function pulseRaw(channel: SciencePulseChannel): number {
         if (channel != SciencePulseChannel.Red && channel != SciencePulseChannel.Infrared) return -1
         scienceBus.acquire()

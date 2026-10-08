@@ -36,7 +36,7 @@ Workbook evidence and contradictions are recorded in `_research/06_inventory_rec
 |---|---|
 | distance.ts | Pololu VL53L0X initialization, SPAD selection, tuning table and 33ms timing-budget math; bounded waits, ACK and raw status checks added |
 | gesture.ts | Shawn Hymel / SparkFun APDS9960 configuration and endpoint-ratio method; asynchronous bounded FIFO polling, 4 directions only |
-| pulse.ts | SparkFun MAX3010x register setup and Analog Devices MAX30102 datasheet; red/IR raw FIFO, overflow and reset detection; no medical metrics |
+| pulse.ts | SparkFun MAX3010x register setup and Analog Devices MAX30105/MAX30102 datasheets; common two-LED red/IR mode 0x03, raw FIFO, overflow and reset detection; no medical metrics |
 | ccs811.ts | SparkFun CCS811 register sequence and manufacturer run-in specification; ID, state, stale-data checks |
 | native.cpp, uart.ts | CODAL NRF52Serial / Serial APIs; UARTE1 for sensors, UARTE0 stays assigned to USB; one selected UART sensor |
 | particulate.ts | Plantower PMS3003/7003 manufacturer frames, length 20/28, atmospheric concentration, checksum; reserved bytes left uninterpreted |
@@ -60,6 +60,7 @@ Additional primary references:
 - [Plantower PMS3003 V2.3, manufacturer-authored copy](https://download.kamami.pl/p563980-PMS3003%20series%20data%20manual_English_V2.5.pdf): 24-byte frame, atmospheric mass fields, additive checksum.
 - [Plantower PMS7003 V2.5, manufacturer-authored copy](https://www.imiconsystem.com/wp-content/uploads/2020/10/p564008-PMS7003-series-data-manua_English_V2.5.pdf): 32-byte frame, active mode, 30s stabilization.
 - [Analog Devices MAX30102](https://www.analog.com/media/en/technical-documentation/data-sheets/max30102.pdf): 18-bit red/IR FIFO, 100SPS / 411µs settings, overflow/status bits.
+- [Analog Devices MAX30105](https://www.analog.com/media/en/technical-documentation/data-sheets/MAX30105.pdf): mode 0x03 uses red and IR LEDs; compatible 18-bit, two-channel FIFO and sample configuration. MAX30105 support is based on register review, pending physical verification.
 - [AMS CCS811 datasheet, manufacturer-authored copy](https://cdn.sparkfun.com/assets/learn_tutorials/1/4/3/CCS811_Datasheet-DS000459.pdf): 20-minute conditioning; first-use burn-in is separate and firmware-dependent.
 - [TI ADS1115](https://www.ti.com/lit/ds/symlink/ads1115.pdf): ±6.144V PGA does not permit exceeding the ADC supply; 5V signal path needs appropriate ADC supply and I2C level shifting.
 - [Aosong AZDM01 V1.1, manufacturer-authored copy](https://xonstorage.blob.core.windows.net/pdf/aosong_azdm01_apr22_xonlink.pdf): turbidity factor is the ratio of measured to clear-water voltage. Module current/PWM drive is not established, so no NTU conversion is claimed.

@@ -54,7 +54,7 @@ namespace scienceADC {
 }
 namespace scienceElectric {
     /** Optional external ADS1115 only: 5V supply and bidirectional I2C level shifter to micro:bit. Channels A0..A3 are on ADS1115, not shield labels. Address change clears calibration. */
-    //% blockId=science_adc_address block="external ADS1115 address $address" group="External ADC(ADS1115)" advanced=true
+    //% blockId=science_adc_address block="external ADS1115 address $address" group="External ADC(ADS1115)"
     export function setADCAddress(address: ScienceADCAddress): void {
         if (address < 0x48 || address > 0x4B || address != Math.floor(address)) return
         scienceBus.acquire()
