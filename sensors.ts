@@ -29,7 +29,7 @@ namespace scienceWater {
 }
 
 //% color=#9B59B6 weight=82 block="Force and motion"
-//% groups='["Analog","Motion(MPU6050)","Weight","Rotary encoder(EC11)"]'
+//% groups='["Analog","Motion(MPU6050)","Weight","Rotary encoder(EC11)","GPS"]'
 namespace scienceMotion {
     /** a-019: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
     //% blockId=scienceMotion_vibration block="vibration sensor $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1

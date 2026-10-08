@@ -1,7 +1,9 @@
 // Simulator fallbacks report unavailable hardware rather than fabricated sensor readings.
 namespace scienceNative {
     //% shim=scienceNative::startSensorUART
-    export function startSensorUART(rx: number, tx: number): boolean { return false }
+    export function startSensorUART(rx: number, tx: number, baud: number): boolean { return false }
+    //% shim=scienceNative::sampleDust
+    export function sampleDust(analog: number, lamp: number): number { return -1 }
     //% shim=scienceNative::readSensorUART
     export function readSensorUART(): Buffer { return pins.createBuffer(0) }
     //% shim=scienceNative::writeSensorUART

@@ -67,3 +67,12 @@ Additional primary references:
 - [Analog Devices DS1307](https://www.analog.com/media/en/technical-documentation/data-sheets/DS1307.pdf): BCD registers, CH flag, 12/24h interpretation.
 
 Adaptation licenses are distributed in THIRD_PARTY_NOTICES.md. Snapshot files are excluded from the extension package; this provenance file and the license notices are included.
+
+## 0.4.0 additions (2026-10-08)
+
+- `fingerprint.ts`: original TypeScript EF01 packet parser and two-stage enrollment state machine. Command numbers, ACK fields, capacity and checksum were cross-checked against the preserved BRIXEL AS608 section and [Adafruit's fingerprint protocol implementation](https://github.com/adafruit/Adafruit-Fingerprint-Sensor-Library/blob/bdbd9dfe2525a40006d8c67e1ecdaa6eea8697f1/Adafruit_Fingerprint.cpp). No image/template upload or deletion commands are exposed. Compatibility with the owned AS608 still needs a captured hardware reply.
+- `gps.ts`: original bounded NMEA RMC/GGA parser with checksums, coordinate/field checks and per-field expiration. [Waveshare UART GPS protocol reference](https://www.waveshare.com/wiki/UART_GPS_NEO-6M_%28B%29) was used to cross-check sentence/checksum conventions, not to identify the D_031 module's chipset. No receiver-specific configuration commands are sent.
+- `analog-dust.ts`, `native.cpp`: original direct ADC sampling adapter using [Sharp GP2Y1010AU0F timing requirements](https://global.sharp/products/device/lineup/data/pdf/datasheet/gp2y1010au_e.pdf) and [Sharp application circuit notes](https://global.sharp/products/device/lineup/data/pdf/datasheet/gp2y1010au_appl_e.pdf). The exact A_018 model and A_016 adapter circuit remain unconfirmed. Only raw ADC values are provided.
+- ADC suspension/restoration was checked against [CODAL NRF52ADC](https://github.com/lancaster-university/codal-nrf52/blob/1fbb7240290fe36a55c61378f5cdeb7640f3ec4a/source/NRF52ADC.cpp) and [NRF52Pin](https://github.com/lancaster-university/codal-nrf52/blob/1fbb7240290fe36a55c61378f5cdeb7640f3ec4a/source/NRF52Pin.cpp). Active ADC stream consumers are rejected. BLE interrupts remain enabled; delayed LED/sample windows return failure. Oscilloscope and coexistence testing remain outstanding.
+
+UART now supports 9600/19200/38400/57600/115200 baud for GPS/fingerprint. PMS/CO2 retain 9600. Only one UART sensor is active at a time; USB remains on its original UART. Inventory assets, protocol research downloads and local test tools are excluded from public distribution.

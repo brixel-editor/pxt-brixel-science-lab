@@ -5,7 +5,7 @@ enum ScienceAirValue {
     TVOC = 1
 }
 //% color=#657BA9 weight=70 block="Air quality"
-//% groups='["eCO2(SGP30)","eCO2(CCS811)","Particulate matter(PMS3003/7003)","CO2(MH-Z19D)"]'
+//% groups='["eCO2(SGP30)","eCO2(CCS811)","Particulate matter(PMS3003/7003)","Analog particulate matter","CO2(MH-Z19D)"]'
 namespace scienceAir {
     let sgpStarted = false
     let sgpReadyAt = 0

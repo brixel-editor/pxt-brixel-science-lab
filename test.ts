@@ -57,3 +57,13 @@ input.onLogoEvent(TouchButtonEvent.Pressed, function () {
  scienceWater.calibrateTurbidity(ScienceADCChannel.A1)
  scienceData.sendUSB([scienceAir.co2(),scienceDetection.laserDistance(),scienceDetection.gestureProximity(),scienceDetection.gestureColor(ScienceColorChannel.Red),scienceDetection.gestureDirection(),scienceElectric.voltage(ScienceADCChannel.A0),scienceWater.turbidity(ScienceADCChannel.A1)])
 })
+
+input.onButtonPressed(Button.AB, function () {
+ scienceMotion.startGPS(ScienceDigitalPin.P13, ScienceDigitalPin.P14, ScienceSensorBaud.Baud9600)
+ if (scienceMotion.gpsReady()) scienceData.sendUSB([scienceMotion.gps(ScienceGPSValue.Latitude), scienceMotion.gps(ScienceGPSValue.Longitude)])
+ scienceBio.startFingerprint(ScienceDigitalPin.P13, ScienceDigitalPin.P14, ScienceSensorBaud.Baud57600)
+ if (scienceBio.enrollFingerprint(ScienceFingerprintStep.First, 1)) {
+  scienceBio.enrollFingerprint(ScienceFingerprintStep.Second, 1)
+ }
+ scienceData.sendUSB([scienceBio.fingerprintID(), scienceBio.fingerprintStatus(), scienceAir.analogDust(ScienceAnalogPin.P1, ScienceDigitalPin.P8)])
+})

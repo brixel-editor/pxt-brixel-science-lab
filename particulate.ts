@@ -39,7 +39,7 @@ namespace scienceAir {
             }
         }
     }
-    /** PMS3003/7003, factory active mode, 9600 baud. Sensor TX to micro:bit RX; RX to TX. Needs 5V power and 3.3V UART logic. Reserves UARTE1; USB stays available. */
+    /** PMS3003/7003, factory active mode, 9600 baud. Sensor TX to micro:bit RX; RX to TX. Needs 5V power and 3.3V UART logic. Only the last started PMS/CO2/GPS/fingerprint sensor uses UARTE1; USB stays available. */
     //% blockId=science_pms_start block="start particulate sensor RX $rx TX $tx" group="Particulate matter(PMS3003/7003)"
     //% rx.defl=ScienceDigitalPin.P13 tx.defl=ScienceDigitalPin.P14
     export function startPMS(rx: ScienceDigitalPin, tx: ScienceDigitalPin): void {

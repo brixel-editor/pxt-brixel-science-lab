@@ -5,7 +5,7 @@ enum SciencePulseChannel {
     Infrared = 1
 }
 //% color=#BA5B86 weight=69 block="Body signals"
-//% groups='["Heart rate sensor(MAX30102)"]'
+//% groups='["Heart rate sensor(MAX30102)","Fingerprint(AS608)"]'
 namespace scienceBio {
     let pulseReady = false
     let pulseAt = -1000
