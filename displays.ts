@@ -21,7 +21,7 @@ enum SciencePixelColor {
     Off = 0
 }
 //% color=#B58C19 weight=60 block="Displays"
-//% groups='["LCD","OLED","NeoPixel"]'
+//% groups='["LCD(LCD1602)","OLED(SSD1306/SH1106)","NeoPixel(WS2812)"]'
 namespace scienceDisplay {
     let lcdAddress = 0
     let oledAddress = 0
@@ -42,7 +42,7 @@ namespace scienceDisplay {
         return false
     }
     /** dis-001: connect LCD1602 to the shield's suitable I2C supply port. Address 0x20/0x27/0x3F is found automatically. English/numbers, 16 characters per line. */
-    //% blockId=science_lcd_line block="LCD line $line text $text" group="LCD"
+    //% blockId=science_lcd_line block="LCD line $line text $text" group="LCD(LCD1602)"
     //% line.min=1 line.max=2 line.defl=1 text.defl="Hello"
     export function lcdLine(line: number, text: string): void {
         displayOK = false
@@ -57,7 +57,7 @@ namespace scienceDisplay {
         scienceBus.release()
     }
     /** Erase both lines of the automatically detected I2C LCD1602. */
-    //% blockId=science_lcd_clear block="clear LCD" group="LCD"
+    //% blockId=science_lcd_clear block="clear LCD" group="LCD(LCD1602)"
     export function lcdClear(): void {
         scienceBus.acquire()
         displayOK = lcdReady()
@@ -78,7 +78,7 @@ namespace scienceDisplay {
         return false
     }
     /** Default SSD1306 matches both OLED sizes in the order list. Select SH1106 only when the module controller is confirmed; size alone does not identify the chip. */
-    //% blockId=science_oled_type block="OLED type $model" group="OLED"
+    //% blockId=science_oled_type block="OLED type $model" group="OLED(SSD1306/SH1106)"
     export function setOLED(model: ScienceOLEDType): void {
         scienceBus.acquire()
         oledType = model
@@ -86,7 +86,7 @@ namespace scienceDisplay {
         scienceBus.release()
     }
     /** dis-011/012: 128x64 I2C OLED. Line 1..8, up to 21 English letters/numbers. Initializes automatically. */
-    //% blockId=science_oled_line block="OLED line $line text $text" group="OLED"
+    //% blockId=science_oled_line block="OLED line $line text $text" group="OLED(SSD1306/SH1106)"
     //% line.min=1 line.max=8 line.defl=1 text.defl="Hello"
     export function oledLine(line: number, text: string): void {
         displayOK = false
@@ -101,7 +101,7 @@ namespace scienceDisplay {
         scienceBus.release()
     }
     /** Erase all eight OLED lines. */
-    //% blockId=science_oled_clear block="clear OLED" group="OLED"
+    //% blockId=science_oled_clear block="clear OLED" group="OLED(SSD1306/SH1106)"
     export function oledClear(): void {
         scienceBus.acquire()
         displayOK = oledReady()
@@ -109,7 +109,7 @@ namespace scienceDisplay {
         scienceBus.release()
     }
     /** dis-013/014 WS2812 RGB: use the pin printed at the selected shield socket. Brightness capped at 32/255. V2 hardware DMA; BLE coexistence still needs physical testing. */
-    //% blockId=science_pixels block="NeoPixel pin $pin count $count color $color" group="NeoPixel"
+    //% blockId=science_pixels block="NeoPixel pin $pin count $count color $color" group="NeoPixel(WS2812)"
     //% pin.defl=ScienceDigitalPin.P9 count.min=1 count.max=64 count.defl=8
     export function pixels(pin: ScienceDigitalPin, count: number, color: SciencePixelColor): void {
         displayOK = false

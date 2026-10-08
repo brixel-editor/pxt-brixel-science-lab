@@ -6,7 +6,7 @@ enum ScienceCalibrationPoint {
 }
 namespace scienceWeather {
     /** a-005: NTC 10kΩ/B3950, with 10kΩ lower resistor. Use 3.3V analog G/V/S. Module resistor orientation must match. Disconnected/rail reading=-127. */
-    //% blockId=science_ntc block="NTC temperature pin $pin (°C)" group="NTC" pin.defl=ScienceAnalogPin.P1
+    //% blockId=science_ntc block="NTC temperature pin $pin (°C)" group="Temperature(NTC)" pin.defl=ScienceAnalogPin.P1
     export function ntc(pin: ScienceAnalogPin): number {
         let raw = scienceInternal.analog(pin)
         if (raw <= 0 || raw >= 1023) return -127
@@ -19,7 +19,7 @@ namespace scienceWeather {
     let ptTemp1: number[] = []
     let ptTemp2: number[] = []
     /** a-001 PT100 module: capture two known reference temperatures in the range of your experiment. Calibration resets when the program restarts. */
-    //% blockId=science_pt100_calibrate block="PT100 pin $pin calibrate $point reference $temperature °C" group="PT100"
+    //% blockId=science_pt100_calibrate block="PT100 pin $pin calibrate $point reference $temperature °C" group="Temperature(PT100)"
     //% pin.defl=ScienceAnalogPin.P1 temperature.defl=25
     export function calibratePT100(pin: ScienceAnalogPin, point: ScienceCalibrationPoint, temperature: number): void {
         if (!scienceInternal.finite(temperature)) return
@@ -34,7 +34,7 @@ namespace scienceWeather {
         else { ptRaw2[index] = raw; ptTemp2[index] = temperature }
     }
     /** PT100 analog module: first calibrate at two known temperatures. Linear estimate only within those points; unavailable/out-of-range=-9999 °C. */
-    //% blockId=science_pt100 block="PT100 temperature pin $pin (°C)" group="PT100" pin.defl=ScienceAnalogPin.P1
+    //% blockId=science_pt100 block="PT100 temperature pin $pin (°C)" group="Temperature(PT100)" pin.defl=ScienceAnalogPin.P1
     export function pt100(pin: ScienceAnalogPin): number {
         let index = ptPins.indexOf(pin)
         if (index < 0 || ptRaw1[index] < 0 || ptRaw2[index] < 0 || Math.abs(ptRaw2[index] - ptRaw1[index]) < 5) return -9999
@@ -83,13 +83,13 @@ namespace scienceWater {
     }
 }
 //% color=#A77925 weight=65 block="Electrical measurements"
-//% groups='["Current","External ADC"]'
+//% groups='["Current(WCS2801)","External ADC(ADS1115)"]'
 namespace scienceElectric {
     let currentPins: number[] = []
     let currentZeros: number[] = []
     let currentCountsPerAmp: number[] = []
     /** a-032 WCS2801: power from 3.3V. Disconnect measured current before zeroing; zero calibration is lost on restart. */
-    //% blockId=science_current_zero block="zero current sensor pin $pin" group="Current" pin.defl=ScienceAnalogPin.P1
+    //% blockId=science_current_zero block="zero current sensor pin $pin" group="Current(WCS2801)" pin.defl=ScienceAnalogPin.P1
     export function zeroCurrent(pin: ScienceAnalogPin): void {
         let raw = scienceInternal.analog(pin)
         if (raw <= 0 || raw >= 1023) return
@@ -98,7 +98,7 @@ namespace scienceElectric {
         else currentZeros[index] = raw
     }
     /** After zeroing, apply a known DC current measured by a reference meter. Sensitivity varies with supply voltage and module. */
-    //% blockId=science_current_calibrate block="current pin $pin calibrate reference $amps A" group="Current"
+    //% blockId=science_current_calibrate block="current pin $pin calibrate reference $amps A" group="Current(WCS2801)"
     //% pin.defl=ScienceAnalogPin.P1 amps.defl=0.5
     export function calibrateCurrent(pin: ScienceAnalogPin, amps: number): void {
         let index = currentPins.indexOf(pin)
@@ -108,7 +108,7 @@ namespace scienceElectric {
         currentCountsPerAmp[index] = (raw - currentZeros[index]) / amps
     }
     /** WCS2801 1A module, 3.3V supply. Zero and calibrate with a known current first. Failure/outside ±1A=-9999. */
-    //% blockId=science_current block="current sensor pin $pin (A)" group="Current" pin.defl=ScienceAnalogPin.P1
+    //% blockId=science_current block="current sensor pin $pin (A)" group="Current(WCS2801)" pin.defl=ScienceAnalogPin.P1
     export function current(pin: ScienceAnalogPin): number {
         let index = currentPins.indexOf(pin)
         if (index < 0 || currentCountsPerAmp[index] == 0) return -9999

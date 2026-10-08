@@ -40,7 +40,7 @@ namespace scienceAir {
         }
     }
     /** PMS3003/7003, factory active mode, 9600 baud. Sensor TX to micro:bit RX; RX to TX. Needs 5V power and 3.3V UART logic. Reserves UARTE1; USB stays available. */
-    //% blockId=science_pms_start block="start particulate sensor RX $rx TX $tx" group="Particulate matter"
+    //% blockId=science_pms_start block="start particulate sensor RX $rx TX $tx" group="Particulate matter(PMS3003/7003)"
     //% rx.defl=ScienceDigitalPin.P13 tx.defl=ScienceDigitalPin.P14
     export function startPMS(rx: ScienceDigitalPin, tx: ScienceDigitalPin): void {
         pmReady = false; pmAt = -10000; pmBytes = []
@@ -64,7 +64,7 @@ namespace scienceAir {
         }
     }
     /** Atmospheric PM mass concentration. Call start once. First 30 seconds, checksum errors, deselected sensor, or no fresh frame for 3 seconds=-1. */
-    //% blockId=science_pms_value block="particulate sensor $value" group="Particulate matter"
+    //% blockId=science_pms_value block="particulate sensor $value" group="Particulate matter(PMS3003/7003)"
     export function particulate(value: SciencePMValue): number {
         if (value < 0 || value > 2 || value != Math.floor(value) || !pmReady || scienceUART.owner != 1 || control.millis() < pmWarmAt || control.millis() - pmAt > 3000) return -1
         return pmValues[value]

@@ -15,7 +15,7 @@ namespace scienceLight {
 }
 
 //% color=#248F8F weight=83 block="Water and environment"
-//% groups='["Analog","Digital","pH","TDS","Turbidity"]'
+//% groups='["Analog","Water temperature(DS18B20)","pH","TDS","Turbidity(AZDM01)"]'
 namespace scienceWater {
     /** a-008: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
     //% blockId=scienceWater_soilMoisture block="soil moisture sensor $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
@@ -29,7 +29,7 @@ namespace scienceWater {
 }
 
 //% color=#9B59B6 weight=82 block="Force and motion"
-//% groups='["Analog","I2C","Rotary encoder"]'
+//% groups='["Analog","Motion(MPU6050)","Weight","Rotary encoder(EC11)"]'
 namespace scienceMotion {
     /** a-019: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
     //% blockId=scienceMotion_vibration block="vibration sensor $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
@@ -52,7 +52,7 @@ namespace scienceMotion {
 }
 
 //% color=#5C8F3C weight=81 block="Detection and switches"
-//% groups='["Analog","Digital","I2C","Gesture sensor"]'
+//% groups='["Analog","Digital","Ultrasonic distance","Color(TCS34725)","Laser distance(VL53L0X)","Gesture sensor(APDS9960)"]'
 namespace scienceDetection {
     /** a-022: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
     //% blockId=scienceDetection_analogTouch block="4-pad analog touch sensor $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1

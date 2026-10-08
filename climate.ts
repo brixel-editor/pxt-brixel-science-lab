@@ -20,13 +20,13 @@ enum ScienceIRTemperature {
 }
 
 //% color=#DD7045 weight=85 block="Temperature and weather"
-//% groups='["I2C climate","DHT","NTC","PT100","BMP280","MLX90614","Clock"]'
+//% groups='["Temperature and humidity(GXHT30/SHT30/SHT31)","Temperature and humidity(DHT11/22)","Temperature(NTC)","Temperature(PT100)","Air pressure(BMP280)","Infrared temperature(MLX90614)","Clock(DS1307)"]'
 namespace scienceWeather {
     let shtAt = -1000
     let shtTemp = -127
     let shtHumidity = -1
     /** i2c-002: GXHT30/SHT30/SHT31 at I2C 0x44. Shared single-shot command, CRC and conversion verified in GXHT30 datasheet sections 7.3/7.11/7.12. Failed temperature=-127, humidity=-1. */
-    //% blockId=science_sht31 block="I2C temperature and humidity $value" group="I2C climate"
+    //% blockId=science_sht31 block="I2C temperature and humidity $value" group="Temperature and humidity(GXHT30/SHT30/SHT31)"
     export function sht31(value: ScienceClimateValue): number {
         scienceBus.acquire()
         if (control.millis() - shtAt >= 100) {
@@ -96,7 +96,7 @@ namespace scienceWeather {
         return [temperature, pressure]
     }
     /** i2c-006: connect BMP280 to I2C. Altitude assumes 1013.25 hPa sea-level pressure. Failures: -127 °C, -1 hPa, -9999 m. */
-    //% blockId=science_bmp280 block="BMP280 $value" group="BMP280"
+    //% blockId=science_bmp280 block="BMP280 $value" group="Air pressure(BMP280)"
     export function bmp280(value: SciencePressureValue): number {
         scienceBus.acquire()
         if (control.millis() - bmpAt >= 100) {
@@ -124,7 +124,7 @@ namespace scienceWeather {
     }
 
     /** i2c-003: connect MLX90614 to I2C. Do not combine with CCS811 at address 0x5A. Failed read or PEC returns -127 °C. */
-    //% blockId=science_mlx90614 block="infrared temperature $source (°C)" group="MLX90614"
+    //% blockId=science_mlx90614 block="infrared temperature $source (°C)" group="Infrared temperature(MLX90614)"
     export function infraredTemperature(source: ScienceIRTemperature): number {
         scienceBus.acquire()
         let register = source == ScienceIRTemperature.Object ? 7 : 6

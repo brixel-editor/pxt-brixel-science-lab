@@ -36,7 +36,7 @@ namespace scienceMotion {
             scienceBus.write(0x68, [0x1B, 8]) && scienceBus.write(0x68, [0x1C, 0])
     }
     /** i2c-007: I2C MPU6050, ±2 g / ±500 °/s. Same-address RTC cannot share the bus. Failure=-999. */
-    //% blockId=science_mpu6050 block="MPU6050 $value axis $axis" group="I2C"
+    //% blockId=science_mpu6050 block="MPU6050 $value axis $axis" group="Motion(MPU6050)"
     export function mpu6050(value: ScienceMotionValue, axis: ScienceAxis): number {
         if (axis < 0 || axis > 2) return -999
         scienceBus.acquire()
@@ -55,7 +55,7 @@ namespace scienceMotion {
         return result
     }
     /** Keep MPU6050 still for about one second. Only gyro zero is adjusted; gravity remains in acceleration. */
-    //% blockId=science_gyro_zero block="zero gyro while still" group="I2C"
+    //% blockId=science_gyro_zero block="zero gyro while still" group="Motion(MPU6050)"
     export function zeroGyro(): void {
         scienceBus.acquire()
         if (!mpuReady) mpuReady = mpuInit()
@@ -73,7 +73,7 @@ namespace scienceMotion {
         scienceBus.release()
     }
     /** i2c-010 MCU/HX711 module, I2C address 0x63; connect its load-cell plate. Raw module reading, unit must be verified. Failure=-1. */
-    //% blockId=science_weight block="weight module reading" group="I2C"
+    //% blockId=science_weight block="weight module reading" group="Weight"
     export function weight(): number {
         scienceBus.acquire()
         // This module is a stream, not a register device. Never write a probe register or tare opcode.
@@ -101,7 +101,7 @@ namespace scienceDetection {
         return true
     }
     /** i2c-012 TCS34725: I2C, raw light counts 0..65535. Do not share address 0x29 with VL53L0X. Failure=-1. */
-    //% blockId=science_tcs34725 block="color sensor $channel count" group="I2C"
+    //% blockId=science_tcs34725 block="color sensor $channel count" group="Color(TCS34725)"
     export function color(channel: ScienceColorChannel): number {
         if (channel < 0 || channel > 3) return -1
         scienceBus.acquire()
@@ -120,7 +120,7 @@ namespace scienceDetection {
         return result
     }
     /** Two-signal ultrasonic only: connect separate TRIG and ECHO. A 3-pin single-signal module requires another protocol and is not supported here. Level-shift 5V ECHO. No echo=-1 cm. */
-    //% blockId=science_ultrasonic block="ultrasonic trigger $trigger echo $echo distance (cm)" group="Digital"
+    //% blockId=science_ultrasonic block="ultrasonic trigger $trigger echo $echo distance (cm)" group="Ultrasonic distance"
     //% trigger.defl=ScienceDigitalPin.P13 echo.defl=ScienceDigitalPin.P14
     export function ultrasonic(trigger: ScienceDigitalPin, echo: ScienceDigitalPin): number {
         if (!scienceInternal.validDigital(trigger) || !scienceInternal.validDigital(echo) || trigger == echo) return -1

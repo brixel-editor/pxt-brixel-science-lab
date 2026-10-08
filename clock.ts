@@ -12,7 +12,7 @@ namespace scienceWeather {
         return (value >> 4) * 10 + (value & 15)
     }
     /** DS1307 already set and running, address 0x68. Reads only; does not set the clock. Needs appropriate power/I2C level shifting. Do not share its address with MPU6050. Invalid/halted=-1. */
-    //% blockId=science_clock block="RTC clock $value" group="Clock"
+    //% blockId=science_clock block="RTC clock $value" group="Clock(DS1307)"
     export function clock(value: ScienceClockValue): number {
         if (value < 0 || value > 2 || value != Math.floor(value)) return -1
         scienceBus.acquire()

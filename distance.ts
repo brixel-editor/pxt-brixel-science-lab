@@ -96,7 +96,7 @@ namespace scienceDetection {
         return tofOK
     }
     /** VL53L0X I2C distance in mm, address 0x29. Do not share the address with TCS34725. Timeout, invalid range status, or range over 2000mm=-1. */
-    //% blockId=science_tof block="laser distance sensor (mm)" group="I2C"
+    //% blockId=science_tof block="laser distance sensor (mm)" group="Laser distance(VL53L0X)"
     export function laserDistance(): number {
         scienceBus.acquire()
         if (control.millis() - tofAt >= 50) {

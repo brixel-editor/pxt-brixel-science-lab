@@ -28,7 +28,7 @@ namespace scienceAir {
         }
     }
     /** MH-Z19D 5.0±0.1V power, 3.3V UART. Sensor TX to RX, RX to TX. Selects this sensor instead of PMS on UARTE1. USB remains available. */
-    //% blockId=science_co2_start block="start CO2 sensor RX $rx TX $tx" group="CO2 sensor"
+    //% blockId=science_co2_start block="start CO2 sensor RX $rx TX $tx" group="CO2(MH-Z19D)"
     //% rx.defl=ScienceDigitalPin.P13 tx.defl=ScienceDigitalPin.P14
     export function startCO2(rx: ScienceDigitalPin, tx: ScienceDigitalPin): void {
         co2At = -10000; co2RequestAt = -10000; co2Bytes = []; co2Waiting = false
@@ -60,7 +60,7 @@ namespace scienceAir {
         }
     }
     /** MH-Z19D measured CO2 ppm. First 60 seconds, not selected, bad checksum, response timeout or data older than 3 seconds=-1. Sensor's configured measurement range still applies. */
-    //% blockId=science_co2_value block="CO2 sensor concentration (ppm)" group="CO2 sensor"
+    //% blockId=science_co2_value block="CO2 sensor concentration (ppm)" group="CO2(MH-Z19D)"
     export function co2(): number {
         return scienceUART.owner != 2 || control.millis() < co2WarmAt || control.millis() - co2At > 3000 ? -1 : co2Value
     }

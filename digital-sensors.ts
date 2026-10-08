@@ -27,7 +27,7 @@ namespace scienceWeather {
         return true
     }
     /** d-001/002: connect G/V/S to a 3.3V port. Each sensor is sampled at most once per 2 seconds. Temperature failure=-127, humidity=-1. */
-    //% blockId=science_dht block="$model pin $pin $value" group="DHT" pin.defl=ScienceDigitalPin.P8
+    //% blockId=science_dht block="$model pin $pin $value" group="Temperature and humidity(DHT11/22)" pin.defl=ScienceDigitalPin.P8
     export function dht(model: ScienceDHTModel, pin: ScienceDigitalPin, value: ScienceClimateValue): number {
         let failure = value == ScienceClimateValue.Temperature ? -127 : -1
         if (!scienceInternal.validDigital(pin) || (model != ScienceDHTModel.DHT11 && model != ScienceDHTModel.DHT22)) return failure
@@ -79,7 +79,7 @@ namespace scienceWater {
     let waterBusy = false
     let waterValues: number[] = [-127, -127, -127]
     /** a-003/004 DS18B20: use a 3.3V digital port with module pull-up. Up to three probes on one pin, ordered by ROM search, not socket position. Failure=-127 °C. */
-    //% blockId=science_water_temp block="water temperature pin $pin probe $probe (°C)" group="Digital"
+    //% blockId=science_water_temp block="water temperature pin $pin probe $probe (°C)" group="Water temperature(DS18B20)"
     //% pin.defl=ScienceDigitalPin.P8 probe.min=1 probe.max=3 probe.defl=1
     export function temperature(pin: ScienceDigitalPin, probe: number): number {
         if (!scienceInternal.validDigital(pin) || probe < 1 || probe > 3 || probe != Math.floor(probe)) return -127

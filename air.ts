@@ -5,7 +5,7 @@ enum ScienceAirValue {
     TVOC = 1
 }
 //% color=#657BA9 weight=70 block="Air quality"
-//% groups='["SGP30","CCS811","Particulate matter","CO2 sensor"]'
+//% groups='["eCO2(SGP30)","eCO2(CCS811)","Particulate matter(PMS3003/7003)","CO2(MH-Z19D)"]'
 namespace scienceAir {
     let sgpStarted = false
     let sgpReadyAt = 0
@@ -48,7 +48,7 @@ namespace scienceAir {
         scienceBus.release()
     }
     /** i2c-004: connect SGP30 to I2C. It samples once per second in the background. First 15+ seconds and errors=-1. eCO2 is an estimate, not direct CO2 measurement. */
-    //% blockId=science_sgp30 block="SGP30 air quality $value" group="SGP30"
+    //% blockId=science_sgp30 block="SGP30 air quality $value" group="eCO2(SGP30)"
     export function sgp30(value: ScienceAirValue): number {
         if (!sgpStarted) {
             sgpStarted = true

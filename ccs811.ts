@@ -28,7 +28,7 @@ namespace scienceAir {
         return false
     }
     /** CCS811 I2C air quality, address 0x5A/0x5B. Keep nWAKE LOW. First 20 minutes/errors=-1; eCO2 is an estimate. First-use burn-in is additional. */
-    //% blockId=science_ccs811 block="CCS811 air quality $value" group="CCS811"
+    //% blockId=science_ccs811 block="CCS811 air quality $value" group="eCO2(CCS811)"
     export function ccs811(value: ScienceAirValue): number {
         if (value != ScienceAirValue.ECO2 && value != ScienceAirValue.TVOC) return -1
         scienceBus.acquire()

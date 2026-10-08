@@ -97,20 +97,20 @@ namespace scienceDetection {
         control.inBackground(function () { while (true) { apdsSample(); basic.pause(50) } })
     }
     /** APDS9960 proximity raw 0..255, not centimetres. Uses background sampling; first sample, disconnected or stale=-1. */
-    //% blockId=science_apds_proximity block="gesture sensor proximity raw value" group="Gesture sensor"
+    //% blockId=science_apds_proximity block="gesture sensor proximity raw value" group="Gesture sensor(APDS9960)"
     export function gestureProximity(): number {
         apdsStart()
         return !apdsReady || control.millis() - apdsProximityAt > 500 ? -1 : apdsProximity
     }
     /** APDS9960 color raw 0..65535. Uses the same background sampler as gesture/proximity. First sample, disconnected or stale=-1. */
-    //% blockId=science_apds_color block="gesture sensor $channel raw value" group="Gesture sensor"
+    //% blockId=science_apds_color block="gesture sensor $channel raw value" group="Gesture sensor(APDS9960)"
     export function gestureColor(channel: ScienceColorChannel): number {
         apdsStart()
         if (channel < 0 || channel > 3 || channel != Math.floor(channel) || !apdsReady || control.millis() - apdsColorAt > 500) return -1
         return apdsColors[channel]
     }
     /** APDS9960 completed gesture: 0 none, 1 up, 2 down, 3 left, 4 right. Consumed once; expires after 1 second. Sensor orientation matters. Error=-1. */
-    //% blockId=science_apds_gesture block="gesture sensor direction number" group="Gesture sensor"
+    //% blockId=science_apds_gesture block="gesture sensor direction number" group="Gesture sensor(APDS9960)"
     export function gestureDirection(): number {
         apdsStart()
         if (!apdsReady || control.millis() - apdsAt > 500) return -1

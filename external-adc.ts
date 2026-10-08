@@ -54,7 +54,7 @@ namespace scienceADC {
 }
 namespace scienceElectric {
     /** Optional external ADS1115 only: 5V supply and bidirectional I2C level shifter to micro:bit. Channels A0..A3 are on ADS1115, not shield labels. Address change clears calibration. */
-    //% blockId=science_adc_address block="external ADS1115 address $address" group="External ADC" advanced=true
+    //% blockId=science_adc_address block="external ADS1115 address $address" group="External ADC(ADS1115)" advanced=true
     export function setADCAddress(address: ScienceADCAddress): void {
         if (address < 0x48 || address > 0x4B || address != Math.floor(address)) return
         scienceBus.acquire()
@@ -65,7 +65,7 @@ namespace scienceElectric {
         scienceBus.release()
     }
     /** 25V DC divider module into external ADS1115. Apply a known positive reference <=25V; ADC signal must stay within 0..5V and ADC supply. Calibration clears on restart/address change. */
-    //% blockId=science_voltage_calibrate block="voltage sensor external ADC $channel calibrate at $voltage V" group="External ADC"
+    //% blockId=science_voltage_calibrate block="voltage sensor external ADC $channel calibrate at $voltage V" group="External ADC(ADS1115)"
     //% voltage.defl=5 voltage.min=0.1 voltage.max=25
     export function calibrateVoltage(channel: ScienceADCChannel, voltage: number): void {
         if (!scienceADC.valid(channel)) return
@@ -75,7 +75,7 @@ namespace scienceElectric {
         if (sample > 0.05) scienceADC.voltageScale[channel] = voltage / sample
     }
     /** Calibrated DC voltage from the divider through external ADS1115. Never wire measured voltage directly to ADS1115 or micro:bit. Not calibrated/read error/outside 0..25V=-1. */
-    //% blockId=science_voltage block="voltage sensor external ADC $channel (V)" group="External ADC"
+    //% blockId=science_voltage block="voltage sensor external ADC $channel (V)" group="External ADC(ADS1115)"
     export function voltage(channel: ScienceADCChannel): number {
         if (!scienceADC.valid(channel) || scienceADC.voltageScale[channel] <= 0) return -1
         let sample = scienceADC.volts(channel)
@@ -85,14 +85,14 @@ namespace scienceElectric {
 }
 namespace scienceWater {
     /** AZDM01 module through optional external ADS1115 (5V supply and I2C level shifting). Put in clear water and shield ambient light. Store actual clear-water signal; clears on restart/address change. */
-    //% blockId=science_turbidity_calibrate block="turbidity sensor external ADC $channel calibrate clear water" group="Turbidity"
+    //% blockId=science_turbidity_calibrate block="turbidity sensor external ADC $channel calibrate clear water" group="Turbidity(AZDM01)"
     export function calibrateTurbidity(channel: ScienceADCChannel): void {
         if (!scienceADC.valid(channel)) return
         let sample = scienceADC.volts(channel)
         scienceADC.clearWater[channel] = sample >= 0.1 ? sample : 0
     }
     /** AZDM01 relative transmission: clear water=100%, lower values mean cloudier water. Not NTU. Read error, calibration missing, or over 120%=-1; ADC signal must remain within its supply. */
-    //% blockId=science_turbidity block="turbidity sensor external ADC $channel transmission (%)" group="Turbidity"
+    //% blockId=science_turbidity block="turbidity sensor external ADC $channel transmission (%)" group="Turbidity(AZDM01)"
     export function turbidity(channel: ScienceADCChannel): number {
         if (!scienceADC.valid(channel) || scienceADC.clearWater[channel] <= 0) return -1
         let sample = scienceADC.volts(channel)
