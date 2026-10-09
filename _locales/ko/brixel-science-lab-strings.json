@@ -114,7 +114,7 @@
   "scienceMotion.calibrateAcceleration": "X·Y·Z 각 축의 + 방향을 수직 위로 1초, 다음엔 아래로 1초 가만히 놓고 보정해요. 총 6번이에요. 중력 1g는 유지해요. 미완료·실패는 그 축에 -999예요.",
   "{id:group}Weight": "무게",
   "scienceMotion.weight|block": "무게 모듈 원시값",
-  "scienceMotion.weight": "0x63 I2C 무게 모듈과 플레이트의 원시값이에요. g 단위가 필요하면 빈 접시 영점과 기준추 보정 후 무게(g) 블록을 써요. PEEL 버튼 사용 후에는 다시 보정해요. 오류 -1.",
+  "scienceMotion.weight": "0x63 I2C 무게 모듈의 값이에요(정수 g). 모듈은 전원이 켜질 때 영점을 잡으니 전원을 켤 때 판을 비워 두세요. 영점이 어긋나면 판을 비우고 모듈 전원을 다시 켜거나 PEEL 버튼을 눌러요. 응답이 없으면 -1.",
   "scienceMotion.joystick|block": "조이스틱 축 핀 $pin 원시값",
   "scienceMotion.joystick": "조이스틱 X 또는 Y 신호를 선택한 3.3V 아날로그 핀에 연결해요. 값은 0~1023이에요.",
   "{id:group}Ultrasonic distance": "초음파 거리",

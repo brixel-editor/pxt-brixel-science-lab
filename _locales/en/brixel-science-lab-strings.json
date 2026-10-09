@@ -114,7 +114,7 @@
   "scienceMotion.calibrateAcceleration": "For each axis, point its positive arrow straight up (+1g), then straight down (-1g), keeping still for 1s each. Six captures correct axis offset/scale, not misalignment. Gravity is retained. Partial/failed calibration=-999 on that axis. Lost on restart.",
   "{id:group}Weight": "Weight",
   "scienceMotion.weight|block": "weight module reading",
-  "scienceMotion.weight": "i2c-010 MCU/HX711 module, I2C address 0x63; connect its load-cell plate. Raw module reading, unit must be verified. Failure=-1.",
+  "scienceMotion.weight": "i2c-010 MCU/HX711 module, I2C address 0x63; connect its load-cell plate. The module sends whole grams and zeros itself when its power comes on, so keep the plate empty at power-on. No reply=-1.",
   "scienceMotion.joystick|block": "joystick axis pin $pin value",
   "scienceMotion.joystick": "a-028 joystick: connect the selected X or Y signal to a 3.3V analog pin. Returns 0..1023.",
   "{id:group}Ultrasonic distance": "Ultrasonic distance",

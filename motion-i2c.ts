@@ -123,13 +123,18 @@ namespace scienceMotion {
         mpuFrame = null; mpuAt = -1000
         scienceBus.release()
     }
-    /** i2c-010 MCU/HX711 module, I2C address 0x63; connect its load-cell plate. Raw module reading, unit must be verified. Failure=-1. */
+    /** i2c-010 MCU/HX711 module, I2C address 0x63; connect its load-cell plate. The module sends whole grams and zeros itself when its power comes on, so keep the plate empty at power-on. No reply=-1. */
     //% blockId=science_weight block="weight module reading" group="Weight"
     export function weight(): number {
         scienceBus.acquire()
         // This module is a stream, not a register device. Never write a probe register or tare opcode.
-        let data = scienceBus.read(0x63, 3)
-        let result = data && data[0] == 255 ? scienceBus.be16(data, 1) : -1
+        // Read with the core call, which ignores the I2C status: on micro:bit V2 this module's (ATmega slave)
+        // reply ends with a status CODAL reports as an error although the 3 bytes are valid, so
+        // scienceBus.read (status-checked) always failed (-1). Field-verified 10-09 via the physical-computing extension.
+        // No device -> NACK -> zero buffer -> [0] != 0xFF. Floating lines -> FF FF FF -> rejected (real values stay < ~3.2kg).
+        let data = pins.i2cReadBuffer(0x63, 3)
+        let valid = data.length == 3 && data[0] == 0xFF && !(data[1] == 0xFF && data[2] == 0xFF)
+        let result = valid ? scienceBus.be16(data, 1) : -1
         scienceBus.release()
         return result
     }
