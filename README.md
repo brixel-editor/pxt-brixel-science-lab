@@ -1,6 +1,6 @@
 # BRIXEL Science Lab — 0.7.3 개발판
 
-초등 디지털 과학실험을 위한 **micro:bit V2** MakeCode 확장입니다. 마빗 실드 V2와 현행 DSL 마빗 보드의 센서를 읽고 LCD·OLED·네오픽셀로 표시하거나 바우어버드 프로에 USB(유선)로 보냅니다. 블루투스 무선 전송은 짝 확장 [brixel-science-lab-ble](https://github.com/brixel-editor/pxt-brixel-science-lab-ble)을 추가할 때만 켜집니다.
+초등 디지털 과학실험을 위한 **micro:bit V2** MakeCode 확장입니다. 마빗 실드 V2와 현행 DSL 마빗 보드의 센서를 읽고 LCD·OLED·네오픽셀로 표시하거나 바우어버드 프로에 USB(유선)로 보냅니다. 블루투스 무선 전송은 이 확장 대신 블루투스 확장 [brixel-science-lab-ble](https://github.com/brixel-editor/pxt-brixel-science-lab-ble) **하나만** 넣을 때 켜집니다(이 확장 자동 포함).
 
 ## 센서별 사용 안내 바로가기
 
@@ -32,13 +32,20 @@ https://github.com/brixel-editor/pxt-brixel-science-lab
 
 현재 공개 버전은 `v0.7.3`입니다. 링크로 가져오는 확장이며 MakeCode의 일반 검색 목록 승인을 받은 것은 아닙니다.
 
-`v0.7.0`부터 이 확장은 **블루투스를 쓰지 않습니다**(유선 USB 전송만). 그래서 `radio`와 함께 쓸 수 있습니다. **무선 실험을 할 때만** 블루투스 짝 확장을 추가합니다:
+`v0.7.0`부터 이 확장은 **블루투스를 쓰지 않습니다**(유선 USB 전송만). 그래서 `radio`와 함께 쓸 수 있습니다.
+
+| 수업 | 넣을 확장 |
+|---|---|
+| 유선(USB) | 본 확장 `pxt-brixel-science-lab` **하나** |
+| 무선(블루투스) | 블루투스 확장 `pxt-brixel-science-lab-ble` **하나**(본 확장 자동 포함) |
+
+무선 실험이면 이 확장 대신 **블루투스 확장 하나만** 넣습니다(이 확장의 모든 블록이 자동으로 함께 들어옵니다):
 
 ```text
 https://github.com/brixel-editor/pxt-brixel-science-lab-ble
 ```
 
-짝 확장을 추가할 때 `radio`와 호환되지 않는다는 안내가 나오면 radio를 제거합니다.
+블루투스 확장을 추가할 때 `radio`와 호환되지 않는다는 안내가 나오면 radio를 제거합니다.
 
 `v0.3.1`부터 센서 소제목을 **센서명(칩셋·모델명)**으로 통일했습니다. 예: `eCO2(SGP30)`, `CO2(MH-Z19D)`, `기압(BMP280)`. 모델이 확인되지 않은 범용 모듈에는 모델명을 붙이지 않습니다. eCO2는 CO2 환산값이며 SGP30·CCS811 블록의 선택 메뉴에서 TVOC도 읽을 수 있습니다.
 
@@ -133,7 +140,7 @@ basic.forever(function () {
 })
 ```
 
-수온 센서 P8 → BLE (짝 확장 brixel-science-lab-ble 필요):
+수온 센서 P8 → BLE (블루투스 확장 brixel-science-lab-ble 하나만 넣으면 됨):
 
 ```typescript
 scienceBluetooth.startBluetooth()
