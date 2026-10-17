@@ -167,8 +167,9 @@ namespace scienceMotion {
     /** a-028 joystick: connect the selected X or Y signal to a 3.3V analog pin. Returns 0..1023. */
     //% blockId=science_joystick block="joystick axis pin $pin value" group="Analog" pin.defl=ScienceAnalogPin.P0
     export function joystick(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
-    /** v0.8.0 joystick push button on a digital pin: true while pressed (module output 1, as on the BrixelAI DSL micro:bit card). */
+    /** v0.8.0 joystick push button. v0.8.4: hidden — the BRIXEL joystick module (A_028) has no button (pins G/V/X/Y). Kept for saved projects. */
     //% blockId=science_joystick_button block="joystick button pin $pin pressed" group="Analog" pin.defl=ScienceDigitalPin.P12
+    //% blockHidden=true
     export function joystickButton(pin: ScienceDigitalPin): boolean { return scienceInternal.digital(pin) == 1 }
 }
 namespace scienceDetection {

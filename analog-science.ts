@@ -17,15 +17,18 @@ namespace scienceWeather {
         if (!scienceInternal.finite(temperature) || temperature < -20 || temperature > 100) return
         let raw = scienceInternal.calibrationAnalog(pin)
         if (raw <= 0 || raw >= 1023) return
-        let r25 = 10000 * (1023 / raw - 1) / Math.exp(3950 * (1 / (temperature + 273.15) - 1 / 298.15))
+        // v0.8.4: BRIXEL NTC module (A_005) = VCC–10k–node–NTC–GND, so R_ntc = 10k × raw / (1023 − raw).
+        let r25 = 10000 * raw / (1023 - raw) / Math.exp(3950 * (1 / (temperature + 273.15) - 1 / 298.15))
         if (r25 >= 5000 && r25 <= 20000) ntcR25[index] = r25
     }
-    /** a-005: NTC 10kΩ/B3950, with 10kΩ lower resistor. Use 3.3V analog G/V/S. Module resistor orientation must match. Disconnected/rail reading=-127. */
+    /** a-005: NTC 10kΩ/B3950 on the GND side with a 10kΩ resistor to VCC (BRIXEL module, corrected v0.8.4). Use 3.3V analog G/V/S. Module resistor orientation must match. Disconnected/rail reading=-127. */
     //% blockId=science_ntc block="NTC temperature pin $pin (°C)" group="Temperature(NTC)" pin.defl=ScienceAnalogPin.P1
     export function ntc(pin: ScienceAnalogPin): number {
         let raw = scienceInternal.analog(pin)
         if (raw <= 0 || raw >= 1023) return -127
-        let resistance = 10000 * (1023 / raw - 1)
+        // v0.8.4 (field test 2026-10-17): the module has the NTC on the GND side — the old formula read 22.8 °C in a
+        // 25–27 °C room and went DOWN when held (18.9 °C); with this formula 27.2 °C → 31.4 °C.
+        let resistance = 10000 * raw / (1023 - raw)
         let index = ntcPins.indexOf(pin)
         let r25 = index < 0 ? 10000 : ntcR25[index]
         if (r25 <= 0) return -127
