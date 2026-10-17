@@ -101,3 +101,11 @@ input.onButtonPressed(Button.B, function () {
         scienceWater.tdsEC(ScienceAnalogPin.P1, 25), scienceElectric.acs712(ScienceAnalogPin.P10),
         scienceElectric.voltage(ScienceAnalogPin.P1), scienceMotion.weightAvailable() ? 1 : 0, scienceMotion.joystickButton(ScienceDigitalPin.P12) ? 1 : 0])
 })
+input.onLogoEvent(TouchButtonEvent.Pressed, function () {
+    scienceWeather.setSHT31Address(0x45)
+    scienceDisplay.oledTextSize(2)
+    scienceDisplay.setStripBrightness(64)
+    scienceBio.deleteFingerprint(1)
+    scienceLight.calibrateUVIntensity(ScienceAnalogPin.P3, 1)
+    scienceData.sendUSB([scienceMotion.mpu6050Tilt(ScienceTilt.Roll), scienceMotion.mpu6050Tilt(ScienceTilt.Pitch), scienceLight.uvIntensity(ScienceAnalogPin.P3)])
+})

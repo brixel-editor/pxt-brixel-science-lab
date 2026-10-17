@@ -375,6 +375,26 @@ namespace scienceOLEDDriver {
         _oledCurCol++
     }
 
+    // v0.8.0 글자 크기 2 — 각 글리프 열 비트를 위아래로 두 배(페이지 2장), 열도 두 번 → 12x16 칸.
+    export function oledShowString2x(x: number, y: number, text: string): void {
+        for (let i = 0; i < text.length; i++) {
+            let c = text.charCodeAt(i)
+            if (c < 32 || c > 127) c = 32
+            let base = (c - 32) * 5
+            for (let half = 0; half < 2; half++) {
+                oledSetCursor(x + i * 12, y + half * 8)
+                for (let col = 0; col < 6; col++) {
+                    let b = col < 5 ? OLED_FONT[base + col] : 0
+                    let src = half == 0 ? (b & 0x0F) : ((b >> 4) & 0x0F)
+                    let wide = 0
+                    for (let k = 0; k < 4; k++) if (src & (1 << k)) wide |= 3 << (k * 2)
+                    oledPutByte(wide, false)
+                    oledPutByte(wide, false)
+                }
+            }
+        }
+    }
+
     // 5x7 기본 폰트 (ASCII 32-127)
     const OLED_FONT: number[] = [
         0x00, 0x00, 0x00, 0x00, 0x00,  // 32: space

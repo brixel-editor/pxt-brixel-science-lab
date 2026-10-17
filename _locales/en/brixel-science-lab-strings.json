@@ -339,5 +339,14 @@
   "scienceElectric.acs712|block": "ACS712 current sensor pin $pin (mA)",
   "scienceDisplay.lcdText|block": "LCD row $row column $col text $text",
   "scienceDisplay.oledText|block": "OLED row $row column $col text $text",
-  "{id:group}Current(ACS712)": "Current(ACS712)"
+  "{id:group}Current(ACS712)": "Current(ACS712)",
+  "scienceMotion.mpu6050Tilt|block": "MPU6050 tilt $dir (°)",
+  "ScienceTilt.Roll|block": "left-right (roll)",
+  "ScienceTilt.Pitch|block": "front-back (pitch)",
+  "scienceBio.deleteFingerprint|block": "delete fingerprint ID $id",
+  "scienceWeather.setSHT31Address|block": "I2C temperature and humidity address $addr",
+  "scienceDisplay.oledTextSize|block": "OLED text size $size",
+  "scienceDisplay.setStripBrightness|block": "NeoPixel overall brightness $level",
+  "scienceLight.calibrateUVIntensity|block": "UV sensor (GUVA-S12SD) $pin calibrate intensity $reference mW/cm²",
+  "scienceLight.uvIntensity|block": "UV sensor (GUVA-S12SD) $pin intensity (mW/cm²)"
 }

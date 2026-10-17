@@ -23,6 +23,13 @@ enum ScienceIRTemperature {
 //% groups='["Temperature and humidity(GXHT30/SHT30/SHT31)","Temperature and humidity(DHT11/22)","Temperature(NTC)","Temperature(PT100)","Air pressure(BMP280)","Infrared temperature(MLX90614)","Clock(DS1307)"]'
 namespace scienceWeather {
     let shtAt = -1000
+    let shtAddress = 0x44
+    /** v0.8.0 SHT31/SHT30/GXHT30 I2C address: 68 (0x44, ADDR pin low, default) or 69 (0x45). */
+    //% blockId=science_sht31_address block="I2C temperature and humidity address $addr" group="Temperature and humidity(GXHT30/SHT30/SHT31)"
+    //% addr.defl=68
+    export function setSHT31Address(addr: number): void {
+        if (addr == 0x44 || addr == 0x45) { shtAddress = addr; shtAt = -1000 }
+    }
     let shtTemp = -127
     let shtHumidity = -1
     /** i2c-002: GXHT30/SHT30/SHT31 at I2C 0x44. Shared single-shot command, CRC and conversion verified in GXHT30 datasheet sections 7.3/7.11/7.12. Failed temperature=-127, humidity=-1. */
@@ -33,9 +40,9 @@ namespace scienceWeather {
             shtTemp = -127
             shtHumidity = -1
             // GXHT30 and SHT3x high-repeatability single shot (no clock stretching).
-            if (scienceBus.write(0x44, [0x24, 0x00])) {
+            if (scienceBus.write(shtAddress, [0x24, 0x00])) {
                 basic.pause(16)
-                let data = scienceBus.read(0x44, 6)
+                let data = scienceBus.read(shtAddress, 6)
                 if (data && scienceBus.crc8(data, 0, 2, 255, 0x31) == data[2] &&
                     scienceBus.crc8(data, 3, 2, 255, 0x31) == data[5]) {
                     shtTemp = -45 + 175 * scienceBus.be16(data, 0) / 65535

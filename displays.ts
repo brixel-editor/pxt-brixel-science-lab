@@ -120,16 +120,23 @@ namespace scienceDisplay {
         }
         scienceBus.release()
     }
-    /** v0.8.0 write text at row 0..7, column 0..20 (6-pixel characters), like the BrixelAI DSL micro:bit card. */
+    let oledSize = 1
+    /** v0.8.0 text size for «OLED row column text»: 1 = 6x8 (8 rows × 21 columns), 2 = 12x16 (4 rows × 10 columns). Like the BrixelAI DSL micro:bit card. */
+    //% blockId=science_oled_size block="OLED text size $size" group="OLED(SSD1306/SH1106)"
+    //% size.min=1 size.max=2 size.defl=1
+    export function oledTextSize(size: number): void { oledSize = size == 2 ? 2 : 1 }
+    /** v0.8.0 write text at row, column in the current text size (size 1: row 0..7, column 0..20; size 2: row 0..3, column 0..9), like the BrixelAI DSL micro:bit card. */
     //% blockId=science_oled_text block="OLED row $row column $col text $text" group="OLED(SSD1306/SH1106)"
     //% row.min=0 row.max=7 col.min=0 col.max=20 text.shadow=text text.defl="Hello"
     export function oledText(row: number, col: number, text: any): void {
         displayOK = false
-        if (row < 0 || row > 7 || col < 0 || col > 20) return
-        let shown = scienceInternal.displayText(text)
+        let rows = oledSize == 2 ? 4 : 8, cols = oledSize == 2 ? 10 : 21
+        if (row < 0 || row >= rows || col < 0 || col >= cols) return
+        let shown = scienceInternal.displayText(text).substr(0, cols - col)
         scienceBus.acquire()
         if (oledReady()) {
-            scienceOLEDDriver.oledShowString(col * 6, row * 8, shown.substr(0, 21 - col), scienceOLEDDriver.OLEDColor.White)
+            if (oledSize == 2) scienceOLEDDriver.oledShowString2x(col * 12, row * 16, shown)
+            else scienceOLEDDriver.oledShowString(col * 6, row * 8, shown, scienceOLEDDriver.OLEDColor.White)
             displayOK = true
         }
         scienceBus.release()
@@ -143,6 +150,13 @@ namespace scienceDisplay {
         scienceBus.release()
     }
     // ---- Strip model: set up pin/count once, then light LEDs by number (1..count). ----
+    let stripScale = 255
+    /** v0.8.0 overall NeoPixel brightness 0..255 (default 255 = no change), applied to the following LED blocks on top of their own brightness. Like the BrixelAI DSL micro:bit card's brightness block. */
+    //% blockId=science_strip_brightness block="NeoPixel overall brightness $level" group="NeoPixel(WS2812)" weight=95
+    //% level.min=0 level.max=255 level.defl=64
+    export function setStripBrightness(level: number): void {
+        if (scienceInternal.finite(level)) stripScale = Math.max(0, Math.min(255, Math.round(level)))
+    }
     let stripPin = -1
     let stripData: Buffer = null   // GRB bytes, brightness already applied
     /** Run once at start: the pin the NeoPixel signal wire is in and how many LEDs (1..64). All LEDs start off. Many LEDs at high brightness need more current than the shield 5V may supply; start low. */
@@ -183,7 +197,7 @@ namespace scienceDisplay {
     }
     function putLed(i: number, brightness: number, color: number): void {
         if (!scienceInternal.finite(brightness) || !scienceInternal.finite(color)) return
-        let level = Math.max(0, Math.min(255, Math.round(brightness)))
+        let level = Math.idiv(Math.max(0, Math.min(255, Math.round(brightness))) * stripScale, 255)
         stripData[i * 3] = Math.idiv(((color >> 8) & 255) * level, 255)
         stripData[i * 3 + 1] = Math.idiv(((color >> 16) & 255) * level, 255)
         stripData[i * 3 + 2] = Math.idiv((color & 255) * level, 255)

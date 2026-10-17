@@ -12,6 +12,12 @@ enum ScienceMotionValue {
     //% block="angular velocity (°/s)"
     Gyro = 1
 }
+enum ScienceTilt {
+    //% block="left-right (roll)"
+    Roll = 0,
+    //% block="front-back (pitch)"
+    Pitch = 1
+}
 enum ScienceGravityReference {
     //% block="+1 g (axis up)"
     Positive = 0,
@@ -68,6 +74,16 @@ namespace scienceMotion {
         }
         scienceBus.release()
         return result
+    }
+    /** v0.8.0 tilt angle in degrees from gravity: roll = atan2(ay, az), pitch = atan2(−ax, √(ay²+az²)) — same formulas as the BrixelAI DSL micro:bit firmware (anx/any). Sensor missing=-999. */
+    //% blockId=science_mpu6050_tilt block="MPU6050 tilt $dir (°)" group="Motion(MPU6050)"
+    export function mpu6050Tilt(dir: ScienceTilt): number {
+        let ax = mpu6050(ScienceMotionValue.Acceleration, ScienceAxis.X)
+        let ay = mpu6050(ScienceMotionValue.Acceleration, ScienceAxis.Y)
+        let az = mpu6050(ScienceMotionValue.Acceleration, ScienceAxis.Z)
+        if (ax == -999 || ay == -999 || az == -999) return -999
+        let rad = dir == ScienceTilt.Roll ? Math.atan2(ay, az) : Math.atan2(-ax, Math.sqrt(ay * ay + az * az))
+        return Math.round(rad * 18000 / Math.PI) / 100
     }
     /** Keep MPU6050 still for about one second. Only gyro zero is adjusted; gravity remains in acceleration. */
     //% blockId=science_gyro_zero block="zero gyro while still" group="Motion(MPU6050)"

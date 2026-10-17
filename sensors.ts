@@ -18,6 +18,27 @@ namespace scienceLight {
         let raw = scienceInternal.analog(pin)
         return raw < 0 ? -1 : Math.round(raw * 3300 / 1023)
     }
+    let uvPins: number[] = []
+    let uvPerMv: number[] = []
+    /** v0.8.0 UV intensity needs one reference: measure the same light with a UV meter (mW/cm²) and enter its value here. Lost on restart. */
+    //% blockId=scienceLight_uvIntensityCal block="UV sensor (GUVA-S12SD) $pin calibrate intensity $reference mW/cm²" group="Analog"
+    //% pin.defl=ScienceAnalogPin.P3 reference.defl=1
+    export function calibrateUVIntensity(pin: ScienceAnalogPin, reference: number): void {
+        let i = uvPins.indexOf(pin)
+        if (i < 0) { i = uvPins.length; uvPins.push(pin); uvPerMv.push(0) }
+        uvPerMv[i] = 0
+        let raw = scienceInternal.calibrationAnalog(pin)
+        if (!scienceInternal.finite(reference) || reference <= 0 || raw < 5 || raw >= 1023) return
+        uvPerMv[i] = reference / (raw * 3300 / 1023)
+    }
+    /** v0.8.0 UV intensity (mW/cm²) after «calibrate intensity». Not calibrated or invalid pin=-1 (same as the BrixelAI DSL micro:bit card). */
+    //% blockId=scienceLight_uvIntensity block="UV sensor (GUVA-S12SD) $pin intensity (mW/cm²)" group="Analog" pin.defl=ScienceAnalogPin.P3
+    export function uvIntensity(pin: ScienceAnalogPin): number {
+        let i = uvPins.indexOf(pin)
+        let mv = uvMilliVolts(pin)
+        if (i < 0 || uvPerMv[i] <= 0 || mv < 0) return -1
+        return Math.round(mv * uvPerMv[i] * 1000) / 1000
+    }
     /** v0.8.0 GUVA-S12SD UV index without calibration: about output mV / 100 (BRIXEL reference, same as the BrixelAI DSL micro:bit card). Invalid pin=-1. */
     //% blockId=scienceLight_uvIndex block="UV sensor (GUVA-S12SD) $pin UV index" group="Analog" pin.defl=ScienceAnalogPin.P3
     export function uvIndex(pin: ScienceAnalogPin): number {

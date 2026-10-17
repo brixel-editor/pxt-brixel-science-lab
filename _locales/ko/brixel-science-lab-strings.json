@@ -339,5 +339,14 @@
   "scienceElectric.acs712|block": "전류 센서 ACS712 핀 $pin (mA)",
   "scienceDisplay.lcdText|block": "LCD 줄 $row 칸 $col 에 $text",
   "scienceDisplay.oledText|block": "OLED 줄 $row 칸 $col 에 $text",
-  "{id:group}Current(ACS712)": "전류(ACS712)"
+  "{id:group}Current(ACS712)": "전류(ACS712)",
+  "scienceMotion.mpu6050Tilt|block": "MPU6050 기울기 $dir (°)",
+  "ScienceTilt.Roll|block": "좌우(롤)",
+  "ScienceTilt.Pitch|block": "앞뒤(피치)",
+  "scienceBio.deleteFingerprint|block": "지문 ID $id 지우기",
+  "scienceWeather.setSHT31Address|block": "I2C 온습도 센서 주소 $addr",
+  "scienceDisplay.oledTextSize|block": "OLED 글자 크기 $size",
+  "scienceDisplay.setStripBrightness|block": "네오픽셀 전체 밝기 $level",
+  "scienceLight.calibrateUVIntensity|block": "자외선 센서(GUVA-S12SD) $pin 세기 보정 기준 $reference mW/cm²",
+  "scienceLight.uvIntensity|block": "자외선 센서(GUVA-S12SD) $pin 세기(mW/cm²)"
 }

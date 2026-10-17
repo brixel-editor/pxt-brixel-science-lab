@@ -114,6 +114,16 @@ namespace scienceBio {
         fingerBusy = false
         return result
     }
+    /** v0.8.0 delete the template stored at this ID inside AS608 (DeleteChar 0x0C, one template). Check fingerprint status afterward: 0=success. */
+    //% blockId=science_fingerprint_delete block="delete fingerprint ID $id" group="Fingerprint(AS608)"
+    //% id.defl=1 id.min=1 id.max=999
+    export function deleteFingerprint(id: number): void {
+        fingerLock()
+        fingerFirstID = -1
+        if (!fingerSelected() || id < 1 || id >= fingerCapacity || id != Math.floor(id)) fingerStatusValue = -1
+        else fingerOK([0x0C, (id >> 8) & 255, id & 255, 0, 1])
+        fingerBusy = false
+    }
     /** Last AS608 confirmation code: 0 success, 2 no finger, 9 no match, 10 enrollment mismatch. Other positive values are sensor errors; -1 means setup/transport/argument error. Run Start again after a transport error. */
     //% blockId=science_fingerprint_status block="fingerprint status code" group="Fingerprint(AS608)"
     export function fingerprintStatus(): number { return fingerSelected() ? fingerStatusValue : -1 }
