@@ -105,11 +105,13 @@ namespace scienceDetection {
         for (let k = 0; k < 4; k++) if (v > lows[k] - 15 && v < lows[k] + 30 + 15) return k + 1
         return 0
     }
-    /** v0.8.0 digital line module (TCRT5000 with comparator): 1 = black line under the sensor (BRIXEL reference polarity). Invalid pin=-1. */
+    /** v0.8.0 digital line read (1 = black line). v0.8.3: hidden — the BRIXEL line module (TCRT5000, A_029) is analog; use «line sensor (TCRT5000) raw value». Kept for saved projects. */
     //% blockId=scienceDetection_lineDigital block="line sensor (TCRT5000) digital $pin (1 = black line)" group="Digital" pin.defl=ScienceDigitalPin.P8
+    //% blockHidden=true
     export function lineDigital(pin: ScienceDigitalPin): number { return scienceInternal.digital(pin) }
-    /** v0.8.0 digital IR object module: 1 = object in front (BRIXEL reference polarity). Invalid pin=-1. */
+    /** v0.8.0 digital IR object read. v0.8.3: hidden — the BRIXEL IR Object module (A_031) is analog, smaller when closer (field test: open air ≈570, 2 cm ≈45); use «IR object sensor raw value». Kept for saved projects. */
     //% blockId=scienceDetection_objectDigital block="IR object sensor digital $pin (1 = object)" group="Digital" pin.defl=ScienceDigitalPin.P8
+    //% blockHidden=true
     export function objectDigital(pin: ScienceDigitalPin): number { return scienceInternal.digital(pin) }
     /** d-017~020: connect G/V/S to the selected digital pin. Returns the electrical signal 0 or 1. Module polarity varies. */
     //% blockId=scienceDetection_button block="button $pin signal" group="Digital" pin.defl=ScienceDigitalPin.P8
