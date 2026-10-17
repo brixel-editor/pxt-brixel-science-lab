@@ -1,5 +1,9 @@
 // Simulator fallbacks report unavailable hardware rather than fabricated sensor readings.
 namespace scienceNative {
+    //% shim=scienceNative::micOff
+    export function micOff(): void { }
+    //% shim=scienceNative::micEvents
+    export function micEvents(): void { }
     //% shim=scienceNative::startSensorUART
     export function startSensorUART(rx: number, tx: number, baud: number): boolean { return false }
     //% shim=scienceNative::sampleDust

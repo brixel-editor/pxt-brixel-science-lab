@@ -28,6 +28,20 @@ static bool dhtWait(codal::Pin *p, int level, uint32_t limit) {
 #endif
 // DHT11/DHT22 frame: 5 bytes (checksum checked in TypeScript), or an empty buffer on timing failure.
 // Bit timing (26..70us) is measured in C++; the TypeScript polling loop was too slow/jittery and failed now and then.
+// v0.8.1: micro:bit V2 microphone off (the mic LED goes out). A later sound read turns it on again;
+// micEvents() turns it on again for sound events. Used by the BrixelAI DSL micro:bit USB firmware «mic off».
+//%
+void micOff() {
+#if MICROBIT_CODAL
+    uBit.audio.deactivateMic();
+#endif
+}
+//%
+void micEvents() {
+#if MICROBIT_CODAL
+    uBit.audio.activateMic();
+#endif
+}
 //%
 Buffer readDHT(int pin) {
 #if MICROBIT_CODAL
