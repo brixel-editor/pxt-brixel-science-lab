@@ -24,9 +24,11 @@ namespace scienceElectric {
     //% pin.defl=ScienceAnalogPin.P1
     export function voltage(pin: ScienceAnalogPin): number {
         let index = voltagePins.indexOf(pin)
-        if (index < 0 || voltagePerCount[index] <= 0) return -1
         let raw = voltageRaw(pin)
         if (raw < 0 || raw >= 1023) return -1
+        // v0.8.0: before calibration use the BRIXEL divider ratio 5:1 (0..16.5 V), like the BrixelAI DSL micro:bit card.
+        if (index < 0) return Math.round(raw * 3.3 / 1023 * 5 * 100) / 100
+        if (voltagePerCount[index] <= 0) return -1
         let result = raw * voltagePerCount[index]
         return result <= 25 ? result : -1
     }

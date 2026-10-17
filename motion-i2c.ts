@@ -123,6 +123,16 @@ namespace scienceMotion {
         mpuFrame = null; mpuAt = -1000
         scienceBus.release()
     }
+    let weightAddress = 0x63
+    /** v0.8.0 I2C address of the BRIXEL weight module (HX711 + I2C, default 99 = 0x63). Same as the BrixelAI DSL micro:bit card's weight setup. */
+    //% blockId=science_weight_address block="weight module (HX711 I2C) address $addr" group="Weight" addr.defl=99
+    export function setWeightAddress(addr: number): void {
+        let n = Math.round(addr)
+        if (n >= 1 && n <= 127) weightAddress = n
+    }
+    /** v0.8.0 True when the weight module answers with a valid frame. */
+    //% blockId=science_weight_available block="weight module connected" group="Weight"
+    export function weightAvailable(): boolean { return weight() >= 0 }
     /** i2c-010 MCU/HX711 module, I2C address 0x63; connect its load-cell plate. The module sends whole grams and zeros itself when its power comes on, so keep the plate empty at power-on. No reply=-1. */
     //% blockId=science_weight block="weight module reading" group="Weight"
     export function weight(): number {
@@ -132,7 +142,7 @@ namespace scienceMotion {
         // reply ends with a status CODAL reports as an error although the 3 bytes are valid, so
         // scienceBus.read (status-checked) always failed (-1). Field-verified 10-09 via the physical-computing extension.
         // No device -> NACK -> zero buffer -> [0] != 0xFF. Floating lines -> FF FF FF -> rejected (real values stay < ~3.2kg).
-        let data = pins.i2cReadBuffer(0x63, 3)
+        let data = pins.i2cReadBuffer(weightAddress, 3)
         let valid = data.length == 3 && data[0] == 0xFF && !(data[1] == 0xFF && data[2] == 0xFF)
         let result = valid ? scienceBus.be16(data, 1) : -1
         scienceBus.release()
@@ -141,6 +151,9 @@ namespace scienceMotion {
     /** a-028 joystick: connect the selected X or Y signal to a 3.3V analog pin. Returns 0..1023. */
     //% blockId=science_joystick block="joystick axis pin $pin value" group="Analog" pin.defl=ScienceAnalogPin.P0
     export function joystick(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
+    /** v0.8.0 joystick push button on a digital pin: true while pressed (module output 1, as on the BrixelAI DSL micro:bit card). */
+    //% blockId=science_joystick_button block="joystick button pin $pin pressed" group="Analog" pin.defl=ScienceDigitalPin.P12
+    export function joystickButton(pin: ScienceDigitalPin): boolean { return scienceInternal.digital(pin) == 1 }
 }
 namespace scienceDetection {
     let ultrasonicTemperature = 20
@@ -203,6 +216,21 @@ namespace scienceDetection {
         let result = colorFrame ? scienceBus.u16(colorFrame, channel == ScienceColorChannel.Clear ? 0 : 2 + channel * 2) : -1
         scienceBus.release()
         return result
+    }
+    /** v0.8.0 color name number: 0 red · 1 orange · 2 yellow · 3 green · 4 blue · 5 purple · 6 white · 7 black (same numbers as the BrixelAI DSL micro:bit card). Rules from BRIXEL Physical Computing v0.2.0. Sensor missing=-1. */
+    //% blockId=science_tcs34725_name block="color sensor (TCS34725) color number" group="Color(TCS34725)"
+    export function colorName(): number {
+        let c = color(ScienceColorChannel.Clear)
+        let r0 = color(ScienceColorChannel.Red), g0 = color(ScienceColorChannel.Green), b0 = color(ScienceColorChannel.Blue)
+        if (c < 0 || r0 < 0 || g0 < 0 || b0 < 0) return -1
+        if (c < 600) return 7
+        let d = c > 0 ? c : 1
+        let r = Math.min(255, Math.round(r0 * 255 / d)), g = Math.min(255, Math.round(g0 * 255 / d)), b = Math.min(255, Math.round(b0 * 255 / d))
+        if (Math.max(r, Math.max(g, b)) - Math.min(r, Math.min(g, b)) < 30) return 6
+        if (r >= g && r > b) return g > b + 60 ? 2 : g > b + 25 ? 1 : 0
+        if (g > r && g > b) return 3
+        if (b > r && b > g) return r > g + 30 ? 5 : 4
+        return 6
     }
     /** Two-signal ultrasonic only: connect separate TRIG and ECHO. A 3-pin single-signal module requires another protocol and is not supported here. Level-shift 5V ECHO. No echo=-1 cm. */
     //% blockId=science_ultrasonic block="ultrasonic echo $echo trigger $trigger distance (cm)" group="Ultrasonic distance"

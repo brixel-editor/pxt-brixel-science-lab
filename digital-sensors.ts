@@ -76,7 +76,11 @@ namespace scienceWater {
             scienceWaterDriver.ds18b20SetPin(<DigitalPin><number>pin)
             if (scienceWaterDriver.ds18b20StartConversion()) {
                 for (let i = 0; i < 3; i++) {
-                    let reading = scienceWaterDriver.ds18b20ReadTemp(i, scienceWaterDriver.DS18B20Unit.Celsius)
+                    // v0.8.0: a CRC error (often a BLE interrupt during a 1-Wire slot) re-reads the scratchpad only,
+                    // up to 3 times, without a new conversion. Missing probes return -127 at once (no ROM).
+                    let reading = -127
+                    for (let attempt = 0; attempt < 3 && !(reading >= -55 && reading <= 125); attempt++)
+                        reading = scienceWaterDriver.ds18b20ReadTemp(i, scienceWaterDriver.DS18B20Unit.Celsius)
                     if (reading >= -55 && reading <= 125) waterValues[i] = reading
                 }
             }

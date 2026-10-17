@@ -4,24 +4,36 @@
 //% groups='["Analog"]'
 namespace scienceLight {
     /** a-006: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
-    //% blockId=scienceLight_light block="light sensor $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
+    //% blockId=scienceLight_light block="light sensor (CdS) $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
     export function light(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
     /** a-007: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
-    //% blockId=scienceLight_uvRaw block="UV sensor $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
+    //% blockId=scienceLight_uvRaw block="UV sensor (GUVA-S12SD) $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
     export function uvRaw(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
     /** a-030: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
-    //% blockId=scienceLight_sound block="sound sensor $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
+    //% blockId=scienceLight_sound block="sound sensor (V2) $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
     export function sound(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
+    /** v0.8.0 GUVA-S12SD UV module: output voltage in mV (0..3300). Invalid pin=-1. */
+    //% blockId=scienceLight_uvMv block="UV sensor (GUVA-S12SD) $pin output (mV)" group="Analog" pin.defl=ScienceAnalogPin.P3
+    export function uvMilliVolts(pin: ScienceAnalogPin): number {
+        let raw = scienceInternal.analog(pin)
+        return raw < 0 ? -1 : Math.round(raw * 3300 / 1023)
+    }
+    /** v0.8.0 GUVA-S12SD UV index without calibration: about output mV / 100 (BRIXEL reference, same as the BrixelAI DSL micro:bit card). Invalid pin=-1. */
+    //% blockId=scienceLight_uvIndex block="UV sensor (GUVA-S12SD) $pin UV index" group="Analog" pin.defl=ScienceAnalogPin.P3
+    export function uvIndex(pin: ScienceAnalogPin): number {
+        let mv = uvMilliVolts(pin)
+        return mv < 0 ? -1 : Math.round(mv) / 100
+    }
 }
 
 //% color=#248F8F weight=83 block="Water and environment"
 //% groups='["Analog","Water temperature(DS18B20)","pH","TDS","Turbidity(AZDM01)"]'
 namespace scienceWater {
     /** a-008: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
-    //% blockId=scienceWater_soilMoisture block="soil moisture sensor $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
+    //% blockId=scienceWater_soilMoisture block="soil moisture sensor (capacitive) $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
     export function soilMoisture(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
     /** a-015: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
-    //% blockId=scienceWater_water block="water sensor $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
+    //% blockId=scienceWater_water block="water level sensor (analog) $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
     export function water(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
     /** 2025 orders Sheet1 E26: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
     //% blockId=scienceWater_rain block="rain sensor $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
@@ -32,16 +44,16 @@ namespace scienceWater {
 //% groups='["Analog","Motion(MPU6050)","Weight","Rotary encoder(EC11)","GPS"]'
 namespace scienceMotion {
     /** a-019: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
-    //% blockId=scienceMotion_vibration block="vibration sensor $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
+    //% blockId=scienceMotion_vibration block="vibration sensor (piezo) $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
     export function vibration(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
     /** a-021: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
-    //% blockId=scienceMotion_magnet block="magnet sensor $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
+    //% blockId=scienceMotion_magnet block="magnet sensor (Hall) $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
     export function magnet(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
     /** a-023: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
-    //% blockId=scienceMotion_force block="force sensor $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
+    //% blockId=scienceMotion_force block="pressure sensor (FSR402) $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
     export function force(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
     /** a-025: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
-    //% blockId=scienceMotion_rotation block="rotation sensor $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
+    //% blockId=scienceMotion_rotation block="rotation sensor (potentiometer) $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
     export function rotation(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
     /** a-026: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
     //% blockId=scienceMotion_infiniteRotation block="continuous rotation sensor $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
@@ -58,11 +70,26 @@ namespace scienceDetection {
     //% blockId=scienceDetection_analogTouch block="4-pad analog touch sensor $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
     export function analogTouch(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
     /** a-029: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
-    //% blockId=scienceDetection_line block="line sensor $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
+    //% blockId=scienceDetection_line block="line sensor (TCRT5000) $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
     export function line(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
     /** a-031: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
     //% blockId=scienceDetection_object block="IR object sensor $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
     export function object(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
+    /** v0.8.0 4-pad analog touch module: which pad is touched, 1..4 (0 = none, -1 = invalid pin). Ranges = BRIXEL reference (ESP32 0..4095 / 4) with 15 counts of margin, same as the BrixelAI DSL micro:bit card. */
+    //% blockId=scienceDetection_analogTouchKey block="4-pad analog touch sensor $pin pressed pad" group="Analog" pin.defl=ScienceAnalogPin.P3
+    export function analogTouchKey(pin: ScienceAnalogPin): number {
+        let v = scienceInternal.analog(pin)
+        if (v < 0) return -1
+        let lows = [152, 363, 568, 785]
+        for (let k = 0; k < 4; k++) if (v > lows[k] - 15 && v < lows[k] + 30 + 15) return k + 1
+        return 0
+    }
+    /** v0.8.0 digital line module (TCRT5000 with comparator): 1 = black line under the sensor (BRIXEL reference polarity). Invalid pin=-1. */
+    //% blockId=scienceDetection_lineDigital block="line sensor (TCRT5000) digital $pin (1 = black line)" group="Digital" pin.defl=ScienceDigitalPin.P8
+    export function lineDigital(pin: ScienceDigitalPin): number { return scienceInternal.digital(pin) }
+    /** v0.8.0 digital IR object module: 1 = object in front (BRIXEL reference polarity). Invalid pin=-1. */
+    //% blockId=scienceDetection_objectDigital block="IR object sensor digital $pin (1 = object)" group="Digital" pin.defl=ScienceDigitalPin.P8
+    export function objectDigital(pin: ScienceDigitalPin): number { return scienceInternal.digital(pin) }
     /** d-017~020: connect G/V/S to the selected digital pin. Returns the electrical signal 0 or 1. Module polarity varies. */
     //% blockId=scienceDetection_button block="button $pin signal" group="Digital" pin.defl=ScienceDigitalPin.P8
     export function button(pin: ScienceDigitalPin): number { return scienceInternal.digital(pin) }
@@ -70,22 +97,22 @@ namespace scienceDetection {
     //% blockId=scienceDetection_switchValue block="rocker switch $pin signal" group="Digital" pin.defl=ScienceDigitalPin.P8
     export function switchValue(pin: ScienceDigitalPin): number { return scienceInternal.digital(pin) }
     /** d-022~026: connect G/V/S to the selected digital pin. Returns the electrical signal 0 or 1. Module polarity varies. */
-    //% blockId=scienceDetection_touch block="touch sensor $pin signal" group="Digital" pin.defl=ScienceDigitalPin.P8
+    //% blockId=scienceDetection_touch block="touch sensor (TTP223) $pin signal" group="Digital" pin.defl=ScienceDigitalPin.P8
     export function touch(pin: ScienceDigitalPin): number { return scienceInternal.digital(pin) }
     /** d-013: connect G/V/S to the selected digital pin. Returns the electrical signal 0 or 1. Module polarity varies. */
-    //% blockId=scienceDetection_human block="human presence sensor $pin signal" group="Digital" pin.defl=ScienceDigitalPin.P8
+    //% blockId=scienceDetection_human block="human presence sensor (HC-SR501) $pin signal" group="Digital" pin.defl=ScienceDigitalPin.P8
     export function human(pin: ScienceDigitalPin): number { return scienceInternal.digital(pin) }
     /** d-015: connect G/V/S to the selected digital pin. Returns the electrical signal 0 or 1. Module polarity varies. */
     //% blockId=scienceDetection_tilt block="tilt sensor $pin signal" group="Digital" pin.defl=ScienceDigitalPin.P8
     export function tilt(pin: ScienceDigitalPin): number { return scienceInternal.digital(pin) }
     /** d-016: connect G/V/S to the selected digital pin. Returns the electrical signal 0 or 1. Module polarity varies. */
-    //% blockId=scienceDetection_vibration block="digital vibration sensor $pin signal" group="Digital" pin.defl=ScienceDigitalPin.P8
+    //% blockId=scienceDetection_vibration block="vibration sensor (SW-420) $pin signal" group="Digital" pin.defl=ScienceDigitalPin.P8
     export function vibration(pin: ScienceDigitalPin): number { return scienceInternal.digital(pin) }
     /** d-010: connect G/V/S to the selected digital pin. Returns the electrical signal 0 or 1. Module polarity varies. */
-    //% blockId=scienceDetection_waterLevel block="water level sensor $pin signal" group="Digital" pin.defl=ScienceDigitalPin.P8
+    //% blockId=scienceDetection_waterLevel block="water level sensor (float) $pin signal" group="Digital" pin.defl=ScienceDigitalPin.P8
     export function waterLevel(pin: ScienceDigitalPin): number { return scienceInternal.digital(pin) }
     /** d-012: connect G/V/S to the selected digital pin. Returns the electrical signal 0 or 1. Module polarity varies. */
-    //% blockId=scienceDetection_photoGate block="photointerrupter $pin signal" group="Digital" pin.defl=ScienceDigitalPin.P8
+    //% blockId=scienceDetection_photoGate block="photoresistor (digital) $pin signal" group="Digital" pin.defl=ScienceDigitalPin.P8
     export function photoGate(pin: ScienceDigitalPin): number { return scienceInternal.digital(pin) }
     /** d-027: connect G/V/S to the selected digital pin. Returns the electrical signal 0 or 1. Module polarity varies. */
     //% blockId=scienceDetection_flame block="flame sensor $pin signal" group="Digital" pin.defl=ScienceDigitalPin.P8

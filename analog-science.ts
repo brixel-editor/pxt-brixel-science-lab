@@ -86,9 +86,15 @@ namespace scienceWater {
     //% blockId=science_ph block="pH pin $pin value" group="pH" pin.defl=ScienceAnalogPin.P1
     export function ph(pin: ScienceAnalogPin): number {
         let index = phPins.indexOf(pin)
-        if (index < 0 || ph7[index] < 0 || phOther[index] < 0 || Math.abs(phOther[index] - ph7[index]) < 5) return -1
         let raw = scienceInternal.analog(pin)
         if (raw <= 0 || raw >= 1023) return -1
+        // v0.8.0: before calibration use the BRIXEL E-201-C module default (pH7 = 1.65 V, 170 mV per pH,
+        // higher voltage = more acidic) so the block works right away, like the BrixelAI DSL micro:bit card.
+        if (index < 0 || ph7[index] < 0 || phOther[index] < 0) {
+            let v = raw * 3.3 / 1023
+            return Math.round(Math.max(0, Math.min(14, 7 + (1.65 - v) / 0.17)) * 100) / 100
+        }
+        if (Math.abs(phOther[index] - ph7[index]) < 5) return -1
         let value = 7 + (phReference[index] - 7) * (raw - ph7[index]) / (phOther[index] - ph7[index])
         return value >= 0 && value <= 14 ? value : -1
     }
@@ -119,15 +125,26 @@ namespace scienceWater {
     //% pin.defl=ScienceAnalogPin.P1 temperature.defl=25
     export function tds(pin: ScienceAnalogPin, temperature: number): number {
         let index = tdsPins.indexOf(pin)
-        if (index < 0 || tdsGains[index] <= 0) return -1
+        // v0.8.0: before calibration use gain 1 (Gravity/DFRobot formula, EC x 0.5) like the BrixelAI DSL micro:bit card.
+        let gain = index < 0 ? 1 : tdsGains[index]
+        if (gain <= 0) return -1
         let estimate = tdsEstimate(scienceInternal.analog(pin), temperature)
         if (estimate < 0) return -1
-        let value = estimate * tdsGains[index]
+        let value = estimate * gain
         return value <= 1000 ? value : -1
     }
 }
+namespace scienceWater {
+    /** v0.8.0 electrical conductivity EC (μS/cm) = TDS ppm × 2 (factor 0.5), same calibration. Invalid=-1. */
+    //% blockId=science_tds_ec block="TDS pin $pin water temperature $temperature °C EC (μS/cm)" group="TDS"
+    //% pin.defl=ScienceAnalogPin.P1 temperature.defl=25
+    export function tdsEC(pin: ScienceAnalogPin, temperature: number): number {
+        let ppm = tds(pin, temperature)
+        return ppm < 0 ? -1 : ppm * 2
+    }
+}
 //% color=#A77925 weight=65 block="Electrical measurements"
-//% groups='["Current(WCS2801)","Voltage"]'
+//% groups='["Current(ACS712)","Current(WCS2801)","Voltage"]'
 namespace scienceElectric {
     let currentPins: number[] = []
     let currentZeros: number[] = []
@@ -162,5 +179,32 @@ namespace scienceElectric {
         if (raw <= 0 || raw >= 1023) return -9999
         let amps = (raw - currentZeros[index]) / currentCountsPerAmp[index]
         return Math.abs(amps) <= 1 ? amps : -9999
+    }
+}
+
+namespace scienceElectric {
+    let acsPins: number[] = []
+    let acsZeroMv: number[] = []
+    let acsSensitivity = 1000
+    /** v0.8.0 ACS712 current module (BRIXEL 1A, 5V port): only P10 is a 5V analog pin on the micro:bit Shield V2. Run with no current flowing to store the zero point. */
+    //% blockId=science_acs712_zero block="ACS712 current sensor pin $pin zero (no current)" group="Current(ACS712)" pin.defl=ScienceAnalogPin.P10
+    export function acs712Zero(pin: ScienceAnalogPin): void {
+        let raw = scienceInternal.calibrationAnalog(pin)
+        if (raw <= 0 || raw >= 1023) return
+        let i = acsPins.indexOf(pin)
+        if (i < 0) { acsPins.push(pin); acsZeroMv.push(raw * 3300 / 1023) }
+        else acsZeroMv[i] = raw * 3300 / 1023
+    }
+    /** v0.8.0 sensitivity in mV per A: BRIXEL 1A module 1000 (default) · 5A 185 · 20A 100 · 30A 66. */
+    //% blockId=science_acs712_sensitivity block="ACS712 sensitivity $mv mV/A" group="Current(ACS712)" mv.defl=1000
+    export function acs712Sensitivity(mv: number): void { if (mv > 0) acsSensitivity = mv }
+    /** v0.8.0 current in mA = |mV − zero mV| × 1000 ÷ sensitivity (same as the BrixelAI DSL micro:bit card). Without zero, 2500 mV is used. Invalid pin or ADC at the rail=-1. */
+    //% blockId=science_acs712 block="ACS712 current sensor pin $pin (mA)" group="Current(ACS712)" pin.defl=ScienceAnalogPin.P10
+    export function acs712(pin: ScienceAnalogPin): number {
+        let raw = scienceInternal.analog(pin)
+        if (raw < 0 || raw >= 1023) return -1
+        let i = acsPins.indexOf(pin)
+        let zero = i < 0 ? 2500 : acsZeroMv[i]
+        return Math.round(Math.abs(raw * 3300 / 1023 - zero) * 1000 / acsSensitivity)
     }
 }

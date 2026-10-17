@@ -130,6 +130,14 @@ namespace scienceWeather {
         return result
     }
 
+    /** v0.8.0 make this place 0 m for the altitude reading (stores the current pressure as the reference, like the BrixelAI DSL micro:bit card). */
+    //% blockId=science_bmp_zero block="BMP280 set altitude here to 0 m" group="Air pressure(BMP280)"
+    export function zeroAltitude(): void {
+        bmpAt = -1000
+        let p = bmp280(SciencePressureValue.Pressure)
+        if (p > 0) bmpSeaLevel = p
+    }
+
     /** i2c-003: connect MLX90614 to I2C. Do not combine with CCS811 at address 0x5A. Failed read or PEC returns -127 °C. */
     //% blockId=science_mlx90614 block="infrared temperature $source (°C)" group="Infrared temperature(MLX90614)"
     export function infraredTemperature(source: ScienceIRTemperature): number {

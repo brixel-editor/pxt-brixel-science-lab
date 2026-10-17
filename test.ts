@@ -87,3 +87,17 @@ input.onButtonPressed(Button.AB, function () {
 })
 scienceDisplay.lcdLine(2, 12.3456)
 scienceDisplay.oledLine(2, input.acceleration(Dimension.X))
+// v0.8.0 blocks (BrixelAI DSL micro:bit card parity)
+input.onButtonPressed(Button.B, function () {
+    scienceMotion.setWeightAddress(99)
+    scienceElectric.acs712Zero(ScienceAnalogPin.P10)
+    scienceElectric.acs712Sensitivity(1000)
+    scienceWeather.zeroAltitude()
+    scienceDisplay.lcdText(0, 3, "Hi")
+    scienceDisplay.oledText(2, 4, "Hi")
+    scienceData.sendUSB([scienceLight.uvIndex(ScienceAnalogPin.P3), scienceLight.uvMilliVolts(ScienceAnalogPin.P3),
+        scienceDetection.analogTouchKey(ScienceAnalogPin.P3), scienceDetection.lineDigital(ScienceDigitalPin.P8),
+        scienceDetection.objectDigital(ScienceDigitalPin.P8), scienceDetection.colorName(), scienceMotion.encoderDirection(),
+        scienceWater.tdsEC(ScienceAnalogPin.P1, 25), scienceElectric.acs712(ScienceAnalogPin.P10),
+        scienceElectric.voltage(ScienceAnalogPin.P1), scienceMotion.weightAvailable() ? 1 : 0, scienceMotion.joystickButton(ScienceDigitalPin.P12) ? 1 : 0])
+})

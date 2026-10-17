@@ -39,5 +39,14 @@ namespace scienceMotion {
     export function encoderPosition(): number { return encoderA < 0 ? -9999 : encoderCount }
     /** Reset the EC11 count and incomplete cycle to zero. */
     //% blockId=science_encoder_zero block="rotary encoder zero count" group="Rotary encoder(EC11)"
-    export function zeroEncoder(): void { encoderCount = 0; encoderPartial = 0 }
+    export function zeroEncoder(): void { encoderCount = 0; encoderPartial = 0; encoderLastDir = 0 }
+    let encoderLastDir = 0
+    /** v0.8.0 direction since the last time this block was used: 1 = clockwise, -1 = counter-clockwise, 0 = still (BrixelAI DSL micro:bit card: 1 = clockwise, 0 = still). */
+    //% blockId=science_encoder_direction block="rotary encoder direction" group="Rotary encoder(EC11)"
+    export function encoderDirection(): number {
+        if (encoderA < 0) return 0
+        let d = encoderCount - encoderLastDir
+        encoderLastDir = encoderCount
+        return d > 0 ? 1 : d < 0 ? -1 : 0
+    }
 }

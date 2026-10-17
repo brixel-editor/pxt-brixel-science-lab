@@ -61,6 +61,20 @@ namespace scienceDisplay {
         }
         scienceBus.release()
     }
+    /** v0.8.0 write text at row 0..1, column 0..15 (no padding), like the BrixelAI DSL micro:bit card. */
+    //% blockId=science_lcd_text block="LCD row $row column $col text $text" group="LCD(LCD1602)"
+    //% row.min=0 row.max=1 col.min=0 col.max=15 text.shadow=text text.defl="Hello"
+    export function lcdText(row: number, col: number, text: any): void {
+        displayOK = false
+        if (row < 0 || row > 1 || col < 0 || col > 15) return
+        let shown = scienceInternal.displayText(text)
+        scienceBus.acquire()
+        if (lcdReady()) {
+            scienceLCDDriver.lcdShowString(shown.substr(0, 16 - col), col, row)
+            displayOK = true
+        }
+        scienceBus.release()
+    }
     /** Erase both lines of the automatically detected I2C LCD1602. */
     //% blockId=science_lcd_clear block="clear LCD" group="LCD(LCD1602)"
     export function lcdClear(): void {
@@ -102,6 +116,20 @@ namespace scienceDisplay {
             // Replace one entire page, so writing a shorter value clears the previous digits.
             scienceOLEDDriver.clearTextLine(line - 1)
             scienceOLEDDriver.oledShowString(0, (line - 1) * 8, shown.substr(0, 21), scienceOLEDDriver.OLEDColor.White)
+            displayOK = true
+        }
+        scienceBus.release()
+    }
+    /** v0.8.0 write text at row 0..7, column 0..20 (6-pixel characters), like the BrixelAI DSL micro:bit card. */
+    //% blockId=science_oled_text block="OLED row $row column $col text $text" group="OLED(SSD1306/SH1106)"
+    //% row.min=0 row.max=7 col.min=0 col.max=20 text.shadow=text text.defl="Hello"
+    export function oledText(row: number, col: number, text: any): void {
+        displayOK = false
+        if (row < 0 || row > 7 || col < 0 || col > 20) return
+        let shown = scienceInternal.displayText(text)
+        scienceBus.acquire()
+        if (oledReady()) {
+            scienceOLEDDriver.oledShowString(col * 6, row * 8, shown.substr(0, 21 - col), scienceOLEDDriver.OLEDColor.White)
             displayOK = true
         }
         scienceBus.release()
