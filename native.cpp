@@ -33,12 +33,16 @@ static bool dhtWait(codal::Pin *p, int level, uint32_t limit) {
 //%
 void micOff() {
 #if MICROBIT_CODAL
+    // MicroBitAudio::periodicCallback turns the mic back on while the ADC channel stays enabled,
+    // so disable the channel first (codal-microbit-v2 v0.3.5), then power the mic down.
+    if (uBit.audio.mic) uBit.audio.mic->disable();
     uBit.audio.deactivateMic();
 #endif
 }
 //%
 void micEvents() {
 #if MICROBIT_CODAL
+    if (uBit.audio.mic) uBit.audio.mic->enable();
     uBit.audio.activateMic();
 #endif
 }
