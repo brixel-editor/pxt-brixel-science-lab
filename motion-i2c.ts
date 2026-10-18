@@ -167,6 +167,19 @@ namespace scienceMotion {
     /** a-028 joystick: connect the selected X or Y signal to a 3.3V analog pin. Returns 0..1023. */
     //% blockId=science_joystick block="joystick axis pin $pin value" group="Analog" pin.defl=ScienceAnalogPin.P0
     export function joystick(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
+    /** v0.9.0 joystick direction (BRIXEL module, measured: up = Y 1023). Centre = both axes within ±188 of 512. */
+    //% blockId=science_joystick_dir block="joystick X $px Y $py direction is $dir" group="Analog"
+    //% px.defl=ScienceAnalogPin.P0 py.defl=ScienceAnalogPin.P1
+    export function joystickDirection(px: ScienceAnalogPin, py: ScienceAnalogPin, dir: ScienceJoystickDir): boolean {
+        let x = scienceInternal.analog(px), y = scienceInternal.analog(py)
+        if (x < 0 || y < 0) return false
+        x -= 512; y -= 512
+        let ox = Math.abs(x) > 188, oy = Math.abs(y) > 188
+        let now = ScienceJoystickDir.Center
+        if (ox && (!oy || Math.abs(x) >= Math.abs(y))) now = x < 0 ? ScienceJoystickDir.Left : ScienceJoystickDir.Right
+        else if (oy) now = y > 0 ? ScienceJoystickDir.Up : ScienceJoystickDir.Down
+        return now == dir
+    }
     /** v0.8.0 joystick push button. v0.8.4: hidden — the BRIXEL joystick module (A_028) has no button (pins G/V/X/Y). Kept for saved projects. */
     //% blockId=science_joystick_button block="joystick button pin $pin pressed" group="Analog" pin.defl=ScienceDigitalPin.P12
     //% blockHidden=true

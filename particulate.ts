@@ -44,7 +44,7 @@ namespace scienceAir {
     //% pin.defl=ScienceDigitalPin.P9 weight=100
     export function startPMS3003(pin: ScienceDigitalPin): void { beginPMS(pin, -1) }
     /** PMS7003 (4-pin: G, V, TX, RX). Sensor TX to micro:bit RX, sensor RX to micro:bit TX. Factory active mode, 9600 baud, 5V power, 3.3V signal. Only the last started PMS/CO2/GPS/fingerprint sensor is read; USB stays available. */
-    //% blockId=science_pms_start block="start particulate sensor PMS7003 RX $rx TX $tx" group="Particulate matter(PMS3003/7003)"
+    //% blockId=science_pms_start block="start particulate sensor PMS7003 TX $rx RX $tx" group="Particulate matter(PMS3003/7003)"
     //% rx.defl=ScienceDigitalPin.P13 tx.defl=ScienceDigitalPin.P14 weight=99
     export function startPMS(rx: ScienceDigitalPin, tx: ScienceDigitalPin): void { beginPMS(rx, tx) }
     function beginPMS(rx: number, tx: number): void {

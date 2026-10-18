@@ -53,15 +53,16 @@ namespace scienceWater {
         clearWaterCounts[index] = raw
     }
 
-    /** Relative transmission from the analog signal: clear water=100%, lower means cloudier. Not NTU. Raw zero is valid 0%. Missing calibration, invalid pin, ADC saturation or over 120%=-1. */
+    /** Light passing through the water: clear water = 100%, cloudier = lower (milk ≈ 8%). Not NTU. Before calibration clear water = 800 (BRIXEL AZDM01 on the 5V port P10). Invalid pin, ADC saturation or over 120% = -1. */
     //% blockId=science_turbidity_pin block="turbidity sensor pin $pin transmission (percent)" group="Turbidity(AZDM01)" weight=80
     //% pin.defl=ScienceAnalogPin.P1
     export function turbidity(pin: ScienceAnalogPin): number {
         let index = turbidityPins.indexOf(pin)
-        if (index < 0 || clearWaterCounts[index] <= 0) return -1
+        // v0.9.0: 보정 전 기본 맑은 물 = 800 (브릭셀 AZDM01, 5V 포트 P10 실측: 맑은 물 ≈800 · 우유 ≈60 — DSL마빗 실기 E18)
+        let clear = index < 0 || clearWaterCounts[index] <= 0 ? 800 : clearWaterCounts[index]
         let raw = turbidityRaw(pin)
         if (raw < 0 || raw >= 1023) return -1
-        let result = raw * 100 / clearWaterCounts[index]
-        return result <= 120 ? result : -1
+        let result = raw * 100 / clear
+        return result <= 120 ? Math.round(result) : -1
     }
 }

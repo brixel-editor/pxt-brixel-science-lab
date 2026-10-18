@@ -79,6 +79,8 @@ namespace scienceWeather {
             if (!cal || scienceBus.u16(cal, 0) == 0 || scienceBus.u16(cal, 0) == 65535 ||
                 scienceBus.u16(cal, 6) == 0 || scienceBus.u16(cal, 6) == 65535) continue
             if (!scienceBus.write(address, [0xF4, 0x3F])) continue
+            // v0.9.0: 1초에 한 번 + IIR 4 — 쉼 없이 재면 칩이 데워져 온도가 +5℃ 높았다(DSL마빗 실기 10-18). 온도 = 칩 온도.
+            scienceBus.write(address, [0xF5, 0xA8])
             bmpAddress = address
             bmpCalibration = cal
             basic.pause(100)

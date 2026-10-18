@@ -6,12 +6,18 @@ namespace scienceLight {
     /** a-006: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
     //% blockId=scienceLight_light block="light sensor (CdS) $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
     export function light(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
+    /** v0.9.0 brightness 0..100% = raw ÷ 1023 (BRIXEL CdS: brighter = larger). -1 = invalid pin. */
+    //% blockId=scienceLight_lightPercent block="light sensor (CdS) $pin brightness (percent)" group="Analog" pin.defl=ScienceAnalogPin.P1
+    export function lightPercent(pin: ScienceAnalogPin): number { return scienceInternal.percentOf(pin, 0, 1023) }
     /** a-007: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
     //% blockId=scienceLight_uvRaw block="UV sensor (GUVA-S12SD) $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
     export function uvRaw(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
     /** a-030: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
     //% blockId=scienceLight_sound block="sound sensor (V2) $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
     export function sound(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
+    /** v0.9.0 loudness = largest − smallest of 200 readings in about 20 ms (the sound wave swings around the middle). Quiet ≈ small, clap = large. -1 = invalid pin. */
+    //% blockId=scienceLight_soundLevel block="sound sensor (V2) $pin loudness" group="Analog" pin.defl=ScienceAnalogPin.P1
+    export function soundLevel(pin: ScienceAnalogPin): number { return scienceInternal.swing(pin, 200, 100) }
     /** v0.8.0 GUVA-S12SD UV module: output voltage in mV (0..3300). Invalid pin=-1. */
     //% blockId=scienceLight_uvMv block="UV sensor (GUVA-S12SD) $pin output (mV)" group="Analog" pin.defl=ScienceAnalogPin.P3
     export function uvMilliVolts(pin: ScienceAnalogPin): number {
@@ -51,11 +57,14 @@ namespace scienceLight {
 //% groups='["Analog","Water temperature(DS18B20)","pH","TDS","Turbidity(AZDM01)"]'
 namespace scienceWater {
     /** a-008: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
-    //% blockId=scienceWater_soilMoisture block="soil moisture sensor (capacitive) $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
+    //% blockId=scienceWater_soilMoisture block="soil moisture sensor $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
     export function soilMoisture(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
     /** a-015: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
     //% blockId=scienceWater_water block="water level sensor (analog) $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
     export function water(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
+    /** v0.9.0 water level 0..100% = raw ÷ 1023 (deeper = larger). -1 = invalid pin. */
+    //% blockId=scienceWater_waterPercent block="water level sensor (analog) $pin level (percent)" group="Analog" pin.defl=ScienceAnalogPin.P1
+    export function waterPercent(pin: ScienceAnalogPin): number { return scienceInternal.percentOf(pin, 0, 1023) }
     /** 2025 orders Sheet1 E26: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
     //% blockId=scienceWater_rain block="rain sensor $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
     export function rain(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
@@ -67,21 +76,74 @@ namespace scienceMotion {
     /** a-019: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
     //% blockId=scienceMotion_vibration block="vibration sensor (piezo) $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
     export function vibration(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
+    /** v0.9.0 shake strength = largest − smallest of 50 readings in about 50 ms (the piezo swings around a middle value). Still ≈ small. -1 = invalid pin. */
+    //% blockId=scienceMotion_vibrationStrength block="vibration sensor (piezo) $pin shake strength" group="Analog" pin.defl=ScienceAnalogPin.P1
+    export function vibrationStrength(pin: ScienceAnalogPin): number { return scienceInternal.swing(pin, 50, 1000) }
     /** a-021: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
     //% blockId=scienceMotion_magnet block="magnet sensor (Hall) $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
     export function magnet(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
+    /** v0.9.0 magnet pole from the Hall raw value (BRIXEL module, measured): below 436 = N, above 496 = S, between = no magnet. */
+    //% blockId=scienceMotion_magnetPole block="magnet sensor (Hall) $pin pole is $pole" group="Analog" pin.defl=ScienceAnalogPin.P1
+    export function magnetPole(pin: ScienceAnalogPin, pole: ScienceMagnetPole): boolean {
+        let v = scienceInternal.analog(pin)
+        if (v < 0) return false
+        let now = v < 436 ? ScienceMagnetPole.North : (v > 496 ? ScienceMagnetPole.South : ScienceMagnetPole.None)
+        return now == pole
+    }
     /** a-023: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
     //% blockId=scienceMotion_force block="pressure sensor (FSR402) $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
     export function force(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
+    /** v0.9.0 press strength 0..100% = raw ÷ 800 (BRIXEL FSR402: not pressed 0 · squeezed hard ≈750). -1 = invalid pin. */
+    //% blockId=scienceMotion_forcePercent block="pressure sensor (FSR402) $pin strength (percent)" group="Analog" pin.defl=ScienceAnalogPin.P1
+    export function forcePercent(pin: ScienceAnalogPin): number { return scienceInternal.percentOf(pin, 0, 800) }
     /** a-025: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
     //% blockId=scienceMotion_rotation block="rotation sensor (potentiometer) $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
     export function rotation(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
+    /** v0.9.0 knob position 0..100% = raw ÷ 1023. -1 = invalid pin. */
+    //% blockId=scienceMotion_rotationPercent block="rotation sensor (potentiometer) $pin position (percent)" group="Analog" pin.defl=ScienceAnalogPin.P1
+    export function rotationPercent(pin: ScienceAnalogPin): number { return scienceInternal.percentOf(pin, 0, 1023) }
     /** a-026: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
     //% blockId=scienceMotion_infiniteRotation block="continuous rotation sensor $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
     export function infiniteRotation(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
+    let spinPin = -1
+    let spinTurns = 0
+    let spinHist: number[] = []
+    let spinArmed = true
+    let spinStarted = false
+    /** v0.9.0 full turns counted in the background (one sensor at a time): the value jumps between the ends (≥800 ↔ ≤200) once per turn; one way +1, the other −1. The first use of this block starts counting from 0. */
+    //% blockId=scienceMotion_spinCount block="continuous rotation sensor $pin turns" group="Analog" pin.defl=ScienceAnalogPin.P1
+    export function spinCount(pin: ScienceAnalogPin): number {
+        if (pin != spinPin) { spinPin = pin; spinTurns = 0; spinHist = []; spinArmed = true }
+        if (!spinStarted) {
+            spinStarted = true
+            control.inBackground(function () {
+                while (true) {
+                    if (spinPin >= 0) {
+                        let v = scienceInternal.analog(spinPin)
+                        if (v >= 300 && v <= 700) spinArmed = true
+                        if (spinArmed && spinHist.length > 0) {
+                            let hi = 0, lo = 1023
+                            for (let k = 0; k < spinHist.length; k++) { hi = Math.max(hi, spinHist[k]); lo = Math.min(lo, spinHist[k]) }
+                            if (hi >= 800 && v >= 0 && v <= 200) { spinTurns++; spinArmed = false; spinHist = [] }
+                            else if (lo <= 200 && v >= 800) { spinTurns--; spinArmed = false; spinHist = [] }
+                        }
+                        if (v >= 0) { spinHist.push(v); if (spinHist.length > 10) spinHist.shift() }
+                    }
+                    basic.pause(10)
+                }
+            })
+        }
+        return spinTurns
+    }
+    /** v0.9.0 set the turn count back to 0. */
+    //% blockId=scienceMotion_spinReset block="continuous rotation sensor turns reset to 0" group="Analog"
+    export function spinReset(): void { spinTurns = 0; spinHist = []; spinArmed = true }
     /** a-027: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
     //% blockId=scienceMotion_slider block="slider sensor $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
     export function slider(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
+    /** v0.9.0 slider position 0..100% = raw ÷ 1023. -1 = invalid pin. */
+    //% blockId=scienceMotion_sliderPercent block="slider sensor $pin position (percent)" group="Analog" pin.defl=ScienceAnalogPin.P1
+    export function sliderPercent(pin: ScienceAnalogPin): number { return scienceInternal.percentOf(pin, 0, 1023) }
 }
 
 //% color=#5C8F3C weight=81 block="Detection and switches"
@@ -93,9 +155,42 @@ namespace scienceDetection {
     /** a-029: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
     //% blockId=scienceDetection_line block="line sensor (TCRT5000) $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
     export function line(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
+    let lineRefPins: number[] = []
+    let lineWhite: number[] = []
+    let lineBlack: number[] = []
+    function lineRef(pin: number): number {
+        let i = lineRefPins.indexOf(pin)
+        // 기본값 = BRIXEL TCRT5000 실측(3.3V, 바닥에서 5mm): 흰 종이 ≈27 · 검정 ≈50
+        if (i < 0) { i = lineRefPins.length; lineRefPins.push(pin); lineWhite.push(27); lineBlack.push(50) }
+        return i
+    }
+    /** v0.9.0 hold the sensor 3~5 mm above white paper (or the black line) and run once each; 10 readings are averaged. Same height and light as when you use it. Lost on restart. */
+    //% blockId=scienceDetection_lineCalibrate block="line sensor (TCRT5000) $pin calibrate $ref" group="Analog" pin.defl=ScienceAnalogPin.P1
+    export function lineCalibrate(pin: ScienceAnalogPin, ref: ScienceLineRef): void {
+        let i = lineRef(pin), sum = 0
+        for (let k = 0; k < 10; k++) { let v = scienceInternal.analog(pin); if (v < 0) return; sum += v }
+        if (ref == ScienceLineRef.White) lineWhite[i] = sum / 10
+        else lineBlack[i] = sum / 10
+    }
+    /** v0.9.0 true when the reading is closer to the black reference than to the white one (defaults measured at 5 mm: white 27 · black 50). */
+    //% blockId=scienceDetection_lineOnBlack block="line sensor (TCRT5000) $pin on black line" group="Analog" pin.defl=ScienceAnalogPin.P1
+    export function lineOnBlack(pin: ScienceAnalogPin): boolean {
+        let i = lineRef(pin)
+        let v = scienceInternal.analog(pin)
+        if (v < 0) return false
+        let mid = (lineWhite[i] + lineBlack[i]) / 2
+        return lineBlack[i] >= lineWhite[i] ? v > mid : v < mid
+    }
     /** a-031: connect a 3.3V module to G/V/S of the selected pin. Raw 0..1023; not a calibrated physical unit. P3/P4/P10 turn off the LED display. */
     //% blockId=scienceDetection_object block="IR object sensor $pin raw value" group="Analog" pin.defl=ScienceAnalogPin.P1
     export function object(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
+    /** v0.9.0 nearness 0..100% (BRIXEL IR object module, analog, measured: nothing in front ≈570 → 0%, 2 cm ≈45 → 100%). -1 = invalid pin. */
+    //% blockId=scienceDetection_objectNear block="IR object sensor $pin nearness (percent)" group="Analog" pin.defl=ScienceAnalogPin.P1
+    export function objectNear(pin: ScienceAnalogPin): number {
+        let v = scienceInternal.analog(pin)
+        if (v < 0) return -1
+        return Math.max(0, Math.min(100, Math.round((570 - v) * 100 / 525)))
+    }
     /** v0.8.0 4-pad analog touch module: which pad is touched, 1..4 (0 = none, -1 = invalid pin). Ranges = BRIXEL reference (ESP32 0..4095 / 4) with 15 counts of margin, same as the BrixelAI DSL micro:bit card. */
     //% blockId=scienceDetection_analogTouchKey block="4-pad analog touch sensor $pin pressed pad" group="Analog" pin.defl=ScienceAnalogPin.P3
     export function analogTouchKey(pin: ScienceAnalogPin): number {

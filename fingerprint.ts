@@ -59,7 +59,7 @@ namespace scienceBio {
         return fingerOK([1]) && fingerOK([2, slot])
     }
     /** AS608 factory password 0/address FFFFFFFF, usually 57600 baud. Sensor TX to RX, RX to TX. Waits 1s for boot and reads capacity. Selects this UART sensor; USB/BLE remain available. */
-    //% blockId=science_fingerprint_start block="start fingerprint sensor RX $rx TX $tx baud $baud" group="Fingerprint(AS608)"
+    //% blockId=science_fingerprint_start block="start fingerprint sensor TX $rx RX $tx baud $baud" group="Fingerprint(AS608)"
     //% rx.defl=ScienceDigitalPin.P13 tx.defl=ScienceDigitalPin.P14 baud.defl=ScienceSensorBaud.Baud57600
     export function startFingerprint(rx: ScienceDigitalPin, tx: ScienceDigitalPin, baud: ScienceSensorBaud = ScienceSensorBaud.Baud57600): void {
         fingerLock()

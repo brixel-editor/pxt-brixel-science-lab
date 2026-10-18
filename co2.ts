@@ -28,7 +28,7 @@ namespace scienceAir {
         }
     }
     /** MH-Z19D 5.0±0.1V power, 3.3V UART. Sensor TX to RX, RX to TX. Only the last started PMS/CO2/GPS/fingerprint sensor uses UARTE1. USB remains available. */
-    //% blockId=science_co2_start block="start CO2 sensor RX $rx TX $tx" group="CO2(MH-Z19D)"
+    //% blockId=science_co2_start block="start CO2 sensor TX $rx RX $tx" group="CO2(MH-Z19D)"
     //% rx.defl=ScienceDigitalPin.P13 tx.defl=ScienceDigitalPin.P14
     export function startCO2(rx: ScienceDigitalPin, tx: ScienceDigitalPin): void {
         co2At = -10000; co2RequestAt = -10000; co2Bytes = []; co2Waiting = false

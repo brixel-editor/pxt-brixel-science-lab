@@ -21,6 +21,16 @@ namespace scienceWeather {
         let r25 = 10000 * raw / (1023 - raw) / Math.exp(3950 * (1 / (temperature + 273.15) - 1 / 298.15))
         if (r25 >= 5000 && r25 <= 20000) ntcR25[index] = r25
     }
+    /** v0.9.0 BRIXEL high-temperature module (A_001 + probe A_002) analog value on a 3.3V port: hotter = larger (room ≈75, 75 °C water ≈210). */
+    //% blockId=science_hightemp_raw block="high temperature sensor $pin raw value" group="Temperature(NTC)" pin.defl=ScienceAnalogPin.P1
+    export function highTempRaw(pin: ScienceAnalogPin): number { return scienceInternal.analog(pin) }
+    /** v0.9.0 probe tip temperature ≈ raw × 0.39 − 1.8 °C (BRIXEL module on 3.3V, fitted against a DS18B20 over 170 points, R² 0.98, about ±1.5 °C up to 77 °C). Above about 395 °C (raw ≥ 1020) = -1. Keep the wires and module away from the flame. */
+    //% blockId=science_hightemp block="high temperature sensor $pin temperature (°C)" group="Temperature(NTC)" pin.defl=ScienceAnalogPin.P1
+    export function highTemp(pin: ScienceAnalogPin): number {
+        let raw = scienceInternal.analog(pin)
+        if (raw < 0 || raw >= 1020) return -1
+        return Math.round((raw * 0.39 - 1.8) * 10) / 10
+    }
     /** a-005: NTC 10kΩ/B3950 on the GND side with a 10kΩ resistor to VCC (BRIXEL module, corrected v0.8.4). Use 3.3V analog G/V/S. Module resistor orientation must match. Disconnected/rail reading=-127. */
     //% blockId=science_ntc block="NTC temperature pin $pin (°C)" group="Temperature(NTC)" pin.defl=ScienceAnalogPin.P1
     export function ntc(pin: ScienceAnalogPin): number {

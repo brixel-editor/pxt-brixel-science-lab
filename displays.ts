@@ -135,8 +135,15 @@ namespace scienceDisplay {
         let shown = scienceInternal.displayText(text).substr(0, cols - col)
         scienceBus.acquire()
         if (oledReady()) {
-            if (oledSize == 2) scienceOLEDDriver.oledShowString2x(col * 12, row * 16, shown)
-            else scienceOLEDDriver.oledShowString(col * 6, row * 8, shown, scienceOLEDDriver.OLEDColor.White)
+            // v0.9.0: 쓰기 전에 그 칸부터 줄 끝까지 지운다 — 지우기 블록 없이 숫자가 겹치지 않게
+            if (oledSize == 2) {
+                scienceOLEDDriver.clearTextFrom(row * 2, col * 12)
+                scienceOLEDDriver.clearTextFrom(row * 2 + 1, col * 12)
+                scienceOLEDDriver.oledShowString2x(col * 12, row * 16, shown)
+            } else {
+                scienceOLEDDriver.clearTextFrom(row, col * 6)
+                scienceOLEDDriver.oledShowString(col * 6, row * 8, shown, scienceOLEDDriver.OLEDColor.White)
+            }
             displayOK = true
         }
         scienceBus.release()

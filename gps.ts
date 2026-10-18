@@ -122,7 +122,7 @@ namespace scienceMotion {
         }
     }
     /** D_031 GPS, NMEA RMC/GGA. Match the module baud rate, normally 9600. Sensor TX to RX and RX to TX. Selects GPS instead of the other UART sensors; USB/BLE sending stays available. */
-    //% blockId=science_gps_start block="start GPS RX $rx TX $tx baud $baud" group="GPS"
+    //% blockId=science_gps_start block="start GPS TX $rx RX $tx baud $baud" group="GPS"
     //% rx.defl=ScienceDigitalPin.P13 tx.defl=ScienceDigitalPin.P14 baud.defl=ScienceSensorBaud.Baud9600
     export function startGPS(rx: ScienceDigitalPin, tx: ScienceDigitalPin, baud: ScienceSensorBaud = ScienceSensorBaud.Baud9600): void {
         gpsLine = ""; gpsInvalidate(); gpsTimes[4] = -10000

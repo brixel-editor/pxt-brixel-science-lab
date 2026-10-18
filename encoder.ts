@@ -7,15 +7,16 @@ namespace scienceMotion {
     let encoderStarted = false
     const encoderSteps = [0, -1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1, -1, 0]
     function encoderBits(): number { return pins.digitalReadPin(<DigitalPin>encoderA) * 2 + pins.digitalReadPin(<DigitalPin>encoderB) }
-    /** EC11 A/B contacts with common GND, 3.3V pull-ups. Slow hand-turn experiments only; a full four-transition cycle counts once. Pin changes reset the count. */
+    /** BRIXEL rotary encoder SA → A, SB → B (pins P0·P1·P2·P8·P9·P12~P16; the 5-pin header P6·P7 is not available in this extension). One click = 1; clockwise counts up with SA P6 · SB P7, swap the pins to reverse. The module pulls the lines up itself (no internal pull-up). */
     //% blockId=science_encoder_start block="start rotary encoder A $a B $b" group="Rotary encoder(EC11)"
     //% a.defl=ScienceDigitalPin.P13 b.defl=ScienceDigitalPin.P14
     export function startEncoder(a: ScienceDigitalPin, b: ScienceDigitalPin): void {
         encoderA = -1; encoderB = -1; encoderCount = 0; encoderPartial = 0
         if (a == b || !scienceInternal.validDigital(a) || !scienceInternal.validDigital(b)) return
         scienceInternal.prepare(a); scienceInternal.prepare(b)
-        pins.setPull(<DigitalPin><number>a, PinPullMode.PullUp)
-        pins.setPull(<DigitalPin><number>b, PinPullMode.PullUp)
+        // v0.9.0: 풀 없음 — 브릭셀 로터리 엔코더는 내부 풀업을 걸면 LOW 가 내려가지 않았다(DSL마빗 실기 E31: 풀업 0번 / 풀 없음 420번 변화)
+        pins.setPull(<DigitalPin><number>a, PinPullMode.PullNone)
+        pins.setPull(<DigitalPin><number>b, PinPullMode.PullNone)
         encoderA = a; encoderB = b; encoderPrevious = encoderBits()
         if (!encoderStarted) {
             encoderStarted = true
@@ -23,11 +24,17 @@ namespace scienceMotion {
                 while (true) {
                     if (encoderA >= 0) {
                         let bits = encoderBits()
-                        if ((bits ^ encoderPrevious) == 3) encoderPartial = 0
-                        else encoderPartial += encoderSteps[encoderPrevious * 4 + bits]
-                        if (encoderPartial >= 4) { encoderCount++; encoderPartial = 0 }
-                        if (encoderPartial <= -4) { encoderCount--; encoderPartial = 0 }
-                        encoderPrevious = bits
+                        if (bits != encoderPrevious) {
+                            // v0.9.0 (DSL마빗 실기 E31): 건너뛴 단계(두 신호가 한꺼번에 바뀜)는 쌓지만 않고 버리지 않는다.
+                            //   멈춤 자리(A·B 둘 다 1)로 돌아올 때 반 걸음이 ±2 이상이면 한 딸깍. 튐(3→1→3)은 +1−1 = 0.
+                            if ((bits ^ encoderPrevious) != 3) encoderPartial += encoderSteps[encoderPrevious * 4 + bits]
+                            if (bits == 3) {
+                                if (encoderPartial >= 2) encoderCount++
+                                else if (encoderPartial <= -2) encoderCount--
+                                encoderPartial = 0
+                            }
+                            encoderPrevious = bits
+                        }
                     }
                     basic.pause(1)
                 }

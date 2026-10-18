@@ -22,12 +22,18 @@ namespace scienceWater {
         if (reference == 0) soilDry[index] = raw
         else soilWet[index] = raw
     }
-    /** Relative scale between your dry soil (0) and wet soil (100), not true water percentage. Missing calibration, saturation, unstable reference or outside the two endpoints=-1. */
+    /** Moisture 0..100%. Before calibration: BRIXEL soil sensor (resistive, wetter = larger) default — air 0 → 0%, fully in water ≈550 → 100%; push it in to the same depth each time. After calibrating dry and wet soil, the scale between your two readings (outside them = -1). */
     //% blockId=science_soil_percent block="soil moisture pin $pin relative moisture (percent)" group="Analog"
     //% pin.defl=ScienceAnalogPin.P1
     export function soilMoisturePercent(pin: ScienceAnalogPin): number {
         let index = soilPins.indexOf(pin)
-        if (index < 0 || soilDry[index] < 0 || soilWet[index] < 0 || Math.abs(soilWet[index] - soilDry[index]) < 20) return -1
+        // v0.9.0: 보정 전에는 브릭셀 토양 센서(저항식) 실측 기본값 — 공기 0 → 0%, 물에 끝까지 550 → 100% (DSL마빗 실기 10-18)
+        if (index < 0 || soilDry[index] < 0 || soilWet[index] < 0) {
+            let r = scienceInternal.analog(pin)
+            if (r < 0) return -1
+            return Math.min(100, Math.round(r * 100 / 550))
+        }
+        if (Math.abs(soilWet[index] - soilDry[index]) < 20) return -1
         let raw = scienceInternal.analog(pin)
         if (raw <= 0 || raw >= 1023) return -1
         let value = (raw - soilDry[index]) * 100 / (soilWet[index] - soilDry[index])

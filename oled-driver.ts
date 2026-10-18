@@ -1,5 +1,21 @@
 // Adapted from BRIXEL (MIT), 02_adv_displays.ts. See _sources/manifest.json.
 namespace scienceOLEDDriver {
+    // v0.9.0: x 부터 줄 끝까지 지우기(«줄 칸» 글쓰기가 옛 글자 위에 겹쳐 쓰지 않게 — DSL마빗 v6.6 과 같은 버그)
+    export function clearTextFrom(page: number, x: number): void {
+        oledEnsureBuf()
+        if (x < 0) x = 0
+        if (x >= 128) return
+        oledSeek(page, x)
+        let n = 128 - x
+        for (let col = x; col < 128; col++) _oledBuf[page * 128 + col] = 0
+        while (n > 0) {
+            let k = Math.min(16, n)
+            let blank = pins.createBuffer(k + 1)
+            blank[0] = 0x40
+            pins.i2cWriteBuffer(_oledAddr, blank)
+            n -= k
+        }
+    }
     export function clearTextLine(page: number): void {
         oledEnsureBuf()
         oledSeek(page, 0)
