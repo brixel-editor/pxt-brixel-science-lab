@@ -17,11 +17,13 @@ namespace scienceDetection {
     let apdsGestureStart = 0
     function apdsInit(): boolean {
         let id = scienceBus.register(0x39, 0x92, 1)
-        if (!id || (id[0] != 0xAB && id[0] != 0x9C)) return false
+        // 0xAB = APDS9960 정품, 0x9C·0xA8 = 호환 칩(브릭셀 모듈 실측 0xA8, 2026-10-18)
+        if (!id || (id[0] != 0xAB && id[0] != 0x9C && id[0] != 0xA8)) return false
         // 4x gains; LED 100mA without boost. ALS 103ms. No interrupt pin needed.
+        // GCONF2 0xA3 = 0x43: gesture wait 8.4ms (was 2.8ms) so the 32-entry FIFO does not overflow between 50ms polls.
         let settings = [0x80, 0, 0x81, 219, 0x83, 0xFF, 0x8E, 0x89, 0x9D, 0, 0x9E, 0,
             0x8D, 0x60, 0x8F, 0x09, 0x89, 0, 0x8B, 50, 0x8C, 0x11, 0x90, 1, 0x9F, 0,
-            0xA0, 40, 0xA1, 30, 0xA2, 0x40, 0xA3, 0x41, 0xA4, 0, 0xA5, 0, 0xA7, 0, 0xA9, 0,
+            0xA0, 40, 0xA1, 30, 0xA2, 0x40, 0xA3, 0x43, 0xA4, 0, 0xA5, 0, 0xA7, 0, 0xA9, 0,
             0xA6, 0xC9, 0xAA, 0, 0xAB, 4, 0xAB, 0, 0x80, 0x4F]
         for (let i = 0; i < settings.length; i += 2)
             if (!scienceBus.write(0x39, [settings[i], settings[i + 1]])) return false
@@ -56,7 +58,8 @@ namespace scienceDetection {
             }
             let gesture = scienceBus.register(0x39, 0xAF, 1)
             let level = scienceBus.register(0x39, 0xAE, 1)
-            if (!gesture || !level || level[0] > 32 || (gesture[0] & 2)) ok = false
+            // 넘침(GFOV, bit1)은 실패로 보지 않고 남은 FIFO 를 읽어 이어 간다 — 예전엔 넘침마다 다시 초기화해 손짓을 잃었다(2026-10-18 실기: 손짓 8번 중 3번만)
+            if (!gesture || !level || level[0] > 32) ok = false
             else {
                 let remaining = level[0]
                 while (remaining > 0 && ok) {
