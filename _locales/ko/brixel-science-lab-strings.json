@@ -390,5 +390,15 @@
   "ScienceJoystickDir.Up|block": "위",
   "ScienceJoystickDir.Down|block": "아래",
   "ScienceJoystickDir.Left|block": "왼쪽",
-  "ScienceJoystickDir.Right|block": "오른쪽"
+  "ScienceJoystickDir.Right|block": "오른쪽",
+  "scienceWater.turbidityCloudiness|block": "탁도 센서 핀 $pin 탁한 정도(%)",
+  "scienceWater.turbidityCloudiness": "맑은 물 ≈ 0%, 우유 ≈ 90%, 빛이 전혀 안 통하면 100% 예요. 맑은 물 기준 = 「맑은 물 보정」 값, 안 했으면 800(브릭셀 AZDM01, 5V 포트 P10). 물 밖은 맑은 물처럼 0% 로 나와요.",
+  "scienceDetection.colorNameText|block": "색상 센서(TCS34725) 색 이름",
+  "scienceDetection.colorNameText": "빨강·주황·노랑·초록·파랑·보라·흰색·검정 중 하나로 알려 줘요(연결 안 되면 «없음»). 물체를 센서 앞 1cm 쯤에 대세요.",
+  "scienceDetection.gestureName|block": "제스처 센서 방향 이름",
+  "scienceDetection.gestureName": "없음·위·아래·왼쪽·오른쪽(연결 안 되면 «연결 안 됨»). 센서 위 5~15cm 에서 손을 한 번 휙. 브릭셀 모듈은 왼쪽·오른쪽만 정확하고 위·아래는 구분되지 않아요.",
+  "scienceBio.heartRate|block": "심박 센서(MAX30102/30105) 심박수(bpm)",
+  "scienceBio.heartRate": "1분 맥박 수예요(의료용 아님). 손가락 끝을 가볍게 올리고 움직이지 마세요 — 세게 누르면 피가 안 통해요. 처음 5~10초와 손가락이 없을 때는 -1. 실물 미검증.",
+  "scienceBio.fingerOn|block": "심박 센서에 손가락 올림?",
+  "scienceBio.fingerOn": "손가락이 센서를 덮고 있으면 참(적외선 ≥ 50000)."
 }

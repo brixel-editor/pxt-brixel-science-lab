@@ -65,4 +65,14 @@ namespace scienceWater {
         let result = raw * 100 / clear
         return result <= 120 ? Math.round(result) : -1
     }
+    /** v0.9.1 cloudiness 0..100% = (clear − now) ÷ clear: clear water ≈ 0%, milk ≈ 90%, no light through = 100%. Clear water = your «calibrate clear water» value, otherwise 800 (BRIXEL AZDM01 on the 5V port P10). Out of the water reads like clear water (0%). -1 = invalid pin. */
+    //% blockId=science_turbidity_cloudy block="turbidity sensor pin $pin cloudiness (percent)" group="Turbidity(AZDM01)" weight=85
+    //% pin.defl=ScienceAnalogPin.P10
+    export function turbidityCloudiness(pin: ScienceAnalogPin): number {
+        let index = turbidityPins.indexOf(pin)
+        let clear = index < 0 || clearWaterCounts[index] <= 0 ? 800 : clearWaterCounts[index]
+        let raw = turbidityRaw(pin)
+        if (raw < 0) return -1
+        return Math.max(0, Math.min(100, Math.round((clear - raw) * 100 / clear)))
+    }
 }

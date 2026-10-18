@@ -121,4 +121,11 @@ namespace scienceDetection {
         apdsGesture = 0
         return result
     }
+    /** v0.9.1 gesture as a word: 없음·위·아래·왼쪽·오른쪽 («연결 안 됨» when not connected). Pass the hand once, 5~15 cm above. On the BRIXEL module only left/right are reliable — up and down are not told apart. */
+    //% blockId=science_apds_gesture_text block="gesture sensor direction name" group="Gesture sensor(APDS9960)"
+    export function gestureName(): string {
+        let d = gestureDirection()
+        if (d < 0) return "연결 안 됨"
+        return ["없음", "위", "아래", "왼쪽", "오른쪽"][d]
+    }
 }

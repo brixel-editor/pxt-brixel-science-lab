@@ -390,5 +390,10 @@
   "ScienceJoystickDir.Up|block": "up",
   "ScienceJoystickDir.Down|block": "down",
   "ScienceJoystickDir.Left|block": "left",
-  "ScienceJoystickDir.Right|block": "right"
+  "ScienceJoystickDir.Right|block": "right",
+  "scienceWater.turbidityCloudiness|block": "turbidity sensor pin $pin cloudiness (percent)",
+  "scienceDetection.colorNameText|block": "color sensor (TCS34725) color name",
+  "scienceDetection.gestureName|block": "gesture sensor direction name",
+  "scienceBio.heartRate|block": "heart rate sensor (MAX30102/30105) heart rate (bpm)",
+  "scienceBio.fingerOn|block": "heart rate sensor finger on"
 }

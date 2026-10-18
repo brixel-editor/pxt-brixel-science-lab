@@ -262,6 +262,13 @@ namespace scienceDetection {
         if (b > r && b > g) return r > g + 30 ? 5 : 4
         return 6
     }
+    /** v0.9.1 color as a word: 빨강·주황·노랑·초록·파랑·보라·흰색·검정 (same order as the color number), «없음» when the sensor is not connected. Hold the object about 1 cm in front. */
+    //% blockId=science_tcs34725_text block="color sensor (TCS34725) color name" group="Color(TCS34725)"
+    export function colorNameText(): string {
+        let n = colorName()
+        if (n < 0 || n > 7) return "없음"
+        return ["빨강", "주황", "노랑", "초록", "파랑", "보라", "흰색", "검정"][n]
+    }
     /** Two-signal ultrasonic only: connect separate TRIG and ECHO. A 3-pin single-signal module requires another protocol and is not supported here. Level-shift 5V ECHO. No echo=-1 cm. */
     //% blockId=science_ultrasonic block="ultrasonic echo $echo trigger $trigger distance (cm)" group="Ultrasonic distance"
     //% echo.defl=ScienceDigitalPin.P13 trigger.defl=ScienceDigitalPin.P14
