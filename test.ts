@@ -11,6 +11,8 @@ let sample = [
 ]
 scienceData.sendUSB(sample)
 scienceData.sendValueUSB(sample[0])
+scienceOn.sendValues(sample)
+scienceOn.sendValue(sample[0])
 // Exercise advanced code generation without executing it on a connected board.
 input.onButtonPressed(Button.A, function () {
     let measurements = [

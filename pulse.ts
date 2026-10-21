@@ -69,7 +69,7 @@ namespace scienceBio {
         return result
     }
     // ── v0.9.1 심박수(bpm) — DSL마빗 펌웨어 v6.2 와 같은 계산: 0.02초마다 적외선을 읽어 느린 평균을 빼고, 맥박이 위로 솟았다
-    //   평균 아래로 내려올 때 한 번, 간격 0.3~2초만 인정, 최근 4번 평균. 손가락 없음(적외선 < 50000) = -1. ⚠ 실물 미검증.
+    //   평균 아래로 내려올 때 한 번, 간격 0.3~2초만 인정, 최근 4번 평균. 손가락 없음(적외선 < 50000) = -1. ✅ DSL마빗 실기 통과(같은 계산, 10-18).
     let hrStarted = false, hrIR = -1, hrDC = 0, hrPeak = 0, hrArmed = false, hrLastBeat = 0, hrBpm = -1
     let hrIntervals: number[] = []
     function hrSample(): void {
@@ -103,7 +103,7 @@ namespace scienceBio {
         hrStarted = true
         control.inBackground(function () { while (true) { hrSample(); basic.pause(20) } })
     }
-    /** v0.9.1 heart rate in beats per minute (not a medical device). Rest a fingertip lightly on the sensor and keep still; pressing hard stops the blood flow. The first 5~10 seconds and no finger = -1. Not yet checked on hardware. */
+    /** v0.9.1 heart rate in beats per minute (not a medical device). Rest a fingertip lightly on the sensor and keep still; pressing hard stops the blood flow. The first 5~10 seconds and no finger = -1. Checked on hardware with the DSL micro:bit firmware (same calculation, 2026-10-18). */
     //% blockId=science_heart_bpm block="heart rate sensor (MAX30102/30105) heart rate (bpm)" group="Heart rate sensor(MAX30102)"
     export function heartRate(): number { hrStart(); return hrBpm }
     /** v0.9.1 true when a fingertip covers the sensor (infrared ≥ 50000). */

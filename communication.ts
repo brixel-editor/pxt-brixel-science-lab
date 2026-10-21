@@ -28,14 +28,20 @@ namespace scienceData {
 
     export function trySendUSB(values: number[]): boolean {
         let line = encode(values)
-        if (line.length == 0 || sending) return false
+        if (line.length == 0) return false
+        return writeUSBLine(line + "\n")
+    }
+
+    // One USB serial writer (115200) shared by the Bowerbird and Intelligent Science Lab ON blocks.
+    export function writeUSBLine(text: string): boolean {
+        if (sending) return false
         sending = true
         if (!usbStarted) {
             serial.redirectToUSB()
             serial.setBaudRate(BaudRate.BaudRate115200)
             usbStarted = true
         }
-        serial.writeString(line + "\n")
+        serial.writeString(text)
         sending = false
         return true
     }

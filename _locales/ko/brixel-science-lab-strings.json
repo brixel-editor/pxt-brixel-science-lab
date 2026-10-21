@@ -75,6 +75,12 @@
   "scienceData.sendUSB": "여러 센서의 측정값을 배열에 순서대로 넣어요. 한 줄로 함께 보내요. USB 속도 115200, 구분자 쉼표를 선택해요.",
   "scienceData.sendValueUSB|block": "측정값 $value 바우어버드로 USB 보내기",
   "scienceData.sendValueUSB": "센서 측정값 하나를 끼워 넣어요. 바우어버드 USB 속도는 115200, 구분자는 쉼표로 선택해요.",
+  "scienceOn|block": "지능형과학실 ON으로 보내기",
+  "{id:category}ScienceOn": "지능형과학실 ON으로 보내기",
+  "scienceOn.sendValues|block": "측정값 $values 지능형과학실 ON으로 USB 보내기",
+  "scienceOn.sendValues": "여러 센서의 측정값을 배열에 순서대로 넣어요. \"DATA,값,값,…\" 한 줄로 USB(속도 115200)로 보내요. PC 에서 DSL_On 프로그램을 켜 두세요.",
+  "scienceOn.sendValue|block": "측정값 $value 지능형과학실 ON으로 USB 보내기",
+  "scienceOn.sendValue": "센서 측정값 하나를 끼워 넣어요. \"DATA,값\" 으로 USB(속도 115200)로 보내요. PC 에서 DSL_On 프로그램을 켜 두세요.",
   "ScienceClimateValue.Temperature|block": "온도 (°C)",
   "ScienceClimateValue.Humidity|block": "습도 (%)",
   "SciencePressureValue.Pressure|block": "기압 (hPa)",
@@ -398,7 +404,7 @@
   "scienceDetection.gestureName|block": "제스처 센서 방향 이름",
   "scienceDetection.gestureName": "없음·위·아래·왼쪽·오른쪽(연결 안 되면 «연결 안 됨»). 센서 위 5~15cm 에서 손을 한 번 휙. 브릭셀 모듈은 왼쪽·오른쪽만 정확하고 위·아래는 구분되지 않아요.",
   "scienceBio.heartRate|block": "심박 센서(MAX30102/30105) 심박수(bpm)",
-  "scienceBio.heartRate": "1분 맥박 수예요(의료용 아님). 손가락 끝을 가볍게 올리고 움직이지 마세요 — 세게 누르면 피가 안 통해요. 처음 5~10초와 손가락이 없을 때는 -1. 실물 미검증.",
+  "scienceBio.heartRate": "1분 맥박 수예요(의료용 아님). 손가락 끝을 가볍게 올리고 움직이지 마세요 — 세게 누르면 피가 안 통해요. 처음 5~10초와 손가락이 없을 때는 -1.",
   "scienceBio.fingerOn|block": "심박 센서에 손가락 올림?",
   "scienceBio.fingerOn": "손가락이 센서를 덮고 있으면 참(적외선 ≥ 50000)."
 }
