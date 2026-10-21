@@ -13,6 +13,12 @@ scienceData.sendUSB(sample)
 scienceData.sendValueUSB(sample[0])
 scienceOn.sendValues(sample)
 scienceOn.sendValue(sample[0])
+scienceOn.start("ABC123")
+if (scienceOn.isReady()) scienceOn.send("온도센서", sample[0], ScienceOnType.TEMP)
+scienceOn.add("습도", sample[1], ScienceOnType.HMDT)
+scienceOn.flush()
+let sonReply = scienceOn.reply()
+scienceOn.stop()
 // Exercise advanced code generation without executing it on a connected board.
 input.onButtonPressed(Button.A, function () {
     let measurements = [
